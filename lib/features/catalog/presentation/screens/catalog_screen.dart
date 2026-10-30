@@ -79,8 +79,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 );
               case CatalogStatus.empty:
                 return const EmptyState(
-                  title: 'No products yet',
-                  message: 'There are no products in this example catalog.',
+                  title: 'No products available',
+                  message: 'There are no products to display.',
                 );
               case CatalogStatus.error:
                 return ErrorState(
@@ -131,14 +131,15 @@ class _CatalogProducts extends StatelessWidget {
             ? 1
             : ((contentWidth + gap) / (minimumWidth + gap)).floor().clamp(1, 4);
         final rows = (products.length + columns - 1) ~/ columns;
+        final productLabel = products.length == 1 ? 'product' : 'products';
         return CustomScrollView(
-          key: PageStorageKey<String>('sample-catalog-${variant.name}'),
+          key: PageStorageKey<String>('catalog-${variant.name}'),
           slivers: [
             SliverPadding(
               padding: EdgeInsets.all(tokens.spaceLg),
               sliver: SliverToBoxAdapter(
                 child: Text(
-                  'Example catalog · ${products.length} products · offline data',
+                  '${products.length} $productLabel loaded',
                   style: Theme.of(context).textTheme.bodySmall
                       ?.copyWith(color: tokens.onSurface),
                 ),
