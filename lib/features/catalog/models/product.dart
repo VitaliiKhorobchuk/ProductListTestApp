@@ -10,6 +10,7 @@ class Product extends Equatable {
     this.price,
     this.discountPercentage = 0,
     this.rating,
+    this.reviewCount,
     this.stock,
     this.thumbnail,
     List<String> images = const [],
@@ -23,6 +24,7 @@ class Product extends Equatable {
   final double? price;
   final double discountPercentage;
   final double? rating;
+  final int? reviewCount;
   final int? stock;
   final String? thumbnail;
   final List<String> images;
@@ -49,6 +51,7 @@ class Product extends Equatable {
     price,
     discountPercentage,
     rating,
+    reviewCount,
     stock,
     thumbnail,
     images,

@@ -69,7 +69,7 @@ Create folders as their first implementation files are added. A separate use-cas
 - **ThemeExtension and Material ThemeData:** custom color, spacing, radius, and semantic tokens shared by light/dark components.
 - **Flutter testing tools:** add and run automated unit/widget tests during the final verification step. During implementation, use manual review, static analysis, formatting, and appropriate build checks.
 
-Add dependencies when implementation begins using them. Choose supporting image-caching and price-formatting packages during their component implementation and document platform-specific behavior.
+Add dependencies when implementation begins using them. The first card increment uses AssetImage for bundled fixtures and NetworkImage for remote sources, with Flutter memory caching and fixed USD formatting; no supporting package is needed yet. Persistent disk caching and broader locale formatting remain explicit later decisions; document platform-specific behavior when introduced.
 
 ## Assumptions and API behavior
 
@@ -98,13 +98,14 @@ Add dependencies when implementation begins using them. Choose supporting image-
 - Show placeholders for missing/broken image URLs and log warnings. Skip malformed product records with invalid IDs; treat malformed response envelopes as errors.
 - Start with the brief's theme colors, 12px/default and 8px/small radii, and 8px base spacing. Document visual extensions or deviations.
 - Rating colors: green at 4 and above, amber from 3 to below 4, and red below 3.
+- During API parsing, use the API rating directly; do not recompute it from individual reviews. When reviews is a list, derive reviewCount from reviews.length (an empty list means zero). If reviews is missing, null, or not a list, keep reviewCount null so the badge hides the count. This is the count of returned reviews, not a separately guaranteed total rating/review count.
 
 ## Implementation sequence
 
 1. **App and MVVM architecture skeleton:** separate startup, app composition, and centralized routing. Implement one working offline catalog slice with immutable models, a repository contract/sample implementation, a pure-Dart Cubit/ViewModel and state, and a View displaying example products with reload and loading/empty/error states. Inject the repository/Cubit above routing. Completion: the sample runs, analysis is clean, and the architect reviews the complete layer boundaries. Automated tests remain deferred.
 2. **Theme foundation (implemented):** AppTokens extends ThemeExtension for colors, spacing, radii, and rating colors; AppTheme supplies light/dark ThemeData. An app-level ThemeCubit starts with ThemeMode.system; the app listens through BlocBuilder, and the sample screen sends appearance actions directly to that Cubit without router callbacks. Manual switching preserves the route, loaded state, Cubit instance, and scroll position. Formatting, analysis, a web release build, and independent architecture/design review complete this checkpoint; automated tests remain deferred.
-3. **Reusable components:** required component APIs and variants, image/price presentation, and manual component checks. Use the running app foundation to inspect components as they are added.
-4. **Models and API:** extend the sample models with defensive JSON parsing/validation; implement ProductsApi and RemoteProductsRepository against the existing contract, including remote cancellation/deadlines and endpoint verification.
+3. **Reusable components (in progress):** RatingBadge and ProductCard are implemented in standard/list and compact/grid variants, with shared image loading/fallbacks, defensive price/rating presentation, and manual component checks. The catalog maps models into display values and exposes a local list/grid choice. Complete search input, CategoryChip, and shared error/empty components next; automated component tests remain final-stage work.
+4. **Models and API:** extend the sample models with defensive JSON parsing/validation; implement ProductsApi and RemoteProductsRepository against the existing contract, including remote cancellation/deadlines and endpoint verification. Preserve the API rating and derive optional reviewCount from the reviews list according to the policy above.
 5. **Cubits:** extend the catalog ViewModel with query/pagination behavior and introduce category/detail Cubits with manual behavior checks.
 6. **Catalog screen:** replace the sample repository binding with real API data and compose the required design-system components while retaining state rendering.
 7. **Search, filters, and pagination:** debouncing, title/category intersection, raw cursor handling, stale-response protection, and manual edge-case checks.
@@ -112,9 +113,20 @@ Add dependencies when implementation begins using them. Choose supporting image-
 9. **Tablet layout:** adaptive master-detail behavior, selection prompt, resizing, and safe-area checks.
 10. **Final verification and handoff:** add and run the required model-validation and state-management unit tests, widget tests for at least two design-system components, and routing/regression tests. Complete formatting, static analysis, target-platform builds, accessibility/layout checks, performance checks with 100+ products, and documentation.
 
-The architecture checkpoint is a runnable offline MVVM example with a catalog route, injected repository, Cubit/state, sample products, clean analysis, manual reload verification, and an architect review. The theme checkpoint now builds on it without changing the data layers. The next increment is reusable components. Suggested theme commit message: `feat: add token-based light and dark themes`.
+The architecture checkpoint is a runnable offline MVVM example with a catalog route, injected repository, Cubit/state, sample products, clean analysis, manual reload verification, and an architect review. The theme checkpoint now builds on it without changing the data layers. RatingBadge/ProductCard are the first completed component increment, with clean formatting/analysis, builds, UI/design and architecture review, and manual variants/themes, phone-width, large-text, fallback, keyboard, and scroll checks. Next are search input, CategoryChip, and shared error/empty components. Suggested component commit message: `feat: add product cards and rating badges`.
 
 Describe the overall folder structure in this plan and create each folder when its first real file is added. Each increment should leave the app runnable and be checked through review, static analysis, and appropriate manual/build checks. Automated tests are deferred to final verification. Keep changes small enough to review and explain. The user handles all staging, commits, and pushes.
+
+## Deferred final cleanup review
+
+Before final verification/handoff, review the implemented code for magic numbers and hardcoded user-facing strings. This work is intentionally deferred; no constants/localization refactor is part of the current component increment.
+
+- Extract meaningful layout dimensions, breakpoints, text-scale limits, icon sizes, opacity values, rating thresholds, percentage/formatting rules, pagination defaults, and sample delays into named constants. Group them by responsibility (theme, component layout, product rules, catalog configuration) rather than creating one unrelated global constants file.
+- Keep existing theme tokens as the design-value source of truth. Distinguish configurable rules from obvious loop/index arithmetic and sample product data.
+- Move app-owned visible text, tooltips, fallback/error messages, accessibility labels, plural forms, and number/currency presentation into localization resources using Flutter's localization workflow. Establish English resources first; additional translations require an explicit language decision.
+- Keep models/repositories/Cubits independent of Flutter localization. Map typed failure kinds to localized messages in presentation; do not expose diagnostic messages directly as UI text.
+- Keep route identifiers, asset paths, developer diagnostics, and API/sample product content separate from translatable interface copy. Group technical constants where their context warrants it.
+- Review remaining literals after extraction, update architecture/AI documentation, and perform the final-stage formatting, analysis, builds, manual checks, and required automated regression coverage.
 
 ## AI-assisted development workflow and final documentation
 
