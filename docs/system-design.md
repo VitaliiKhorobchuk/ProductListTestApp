@@ -1,6 +1,6 @@
 # ProductListTestApp system design
 
-This is the design baseline for the product-catalog assessment. The implemented foundation now includes startup, centralized routing, and one working offline MVVM catalog slice: immutable models, a repository contract and fixture-backed implementation, CatalogCubit/state, app-level injection, and a state-rendering View. The remaining full-product behaviors below are the target design, not a claim that networking or every screen/action is complete. The [implementation plan](implementation-plan.md) defines the delivery sequence.
+This is the design baseline for the product-catalog assessment. The implemented foundation now includes startup, centralized routing, and one working offline MVVM catalog slice: immutable models, a repository contract and fixture-backed implementation, CatalogCubit/state, app-level injection, a state-rendering View, and token-based light/dark themes with an app-level switch. The remaining full-product behaviors below are the target design, not a claim that networking or every screen/action is complete. The [implementation plan](implementation-plan.md) defines the delivery sequence.
 
 ## Implemented MVVM architecture example
 
@@ -19,7 +19,7 @@ Results flow back as immutable ProductPage/Product values, then CatalogState, th
 | Composition | `app/app.dart` injects a repository and lets BlocProvider create/close the Cubit above the router. |
 | Shared request/failure types | `core/request_control.dart`, `core/catalog_failure.dart` |
 
-Paths above are relative to lib/. Cubit imports the pure-Dart bloc package; Flutter integration is confined to app/View code through flutter_bloc. Equatable supplies value comparisons. The app accepts a repository override at startup. The default binding uses SampleProductsRepository; the later remote implementation can replace it without changing the View's data source knowledge.
+Paths above are relative to lib/. CatalogCubit imports the pure-Dart bloc package; catalog Flutter integration is confined to app/View code through flutter_bloc. The app-level ThemeCubit is separate from the catalog feature and uses Flutter appearance enums. Equatable supplies value comparisons. The app accepts a repository override at startup. The default binding uses SampleProductsRepository; the later remote implementation can replace it without changing the View's data source knowledge.
 
 The sample repository implements product pages, categories, and single-product lookup from fixtures. It simulates broad source search before local title/category filtering and retains raw cursor semantics, but the View currently exposes only initial load and reload. `remoteTotal` is a simulated source count, not observed server metadata. The fixtures are trusted in-memory model values; JSON parsing, transport errors, API record validation, Dio cancellation mapping, and remote operation deadlines remain later work. The sample's 500ms delay is cancellable and cleans up its timer/listener.
 
@@ -32,6 +32,18 @@ flutter run -d chrome --dart-define=SAMPLE_CATALOG=error
 ```
 
 Stop and relaunch to switch compile-time scenarios. The default is loaded sample data; empty returns no fixtures; error deliberately fails each load, so Retry repeats that configured failure rather than simulating recovery. The repository also accepts an injected fixture list, including an empty list. Screens contain no error-simulation controls. Current manual verification covers the default six-product display and repeated reloads; empty/error scenarios are available but have not yet been launched manually. Automated tests remain deferred.
+
+## Implemented theme foundation
+
+`design_system/theme/app_tokens.dart` defines immutable ThemeExtension tokens for the agreed palettes, semantic rating colors, 8px base spacing, and 12px/default and 8px/small radii. Its copyWith and lerp cover every token. `app_theme.dart` derives cached Material ThemeData and control defaults from these tokens; Views access them through context.tokens.
+
+The app-level `app/theme/theme_cubit.dart` owns ThemeMode, initially system, and exposes setMode/toggle actions. ThemeCubit uses Flutter appearance enums but has no BuildContext or global platform lookup. The catalog reads it from BlocProvider when the switch is pressed, supplying the current MediaQuery platform brightness; its icon/tooltip still follow the effective theme. Toggle resolves the current Cubit selection, so repeated actions do not depend on a possibly animating theme brightness. The router only constructs the screen and forwards no theme callback.
+
+ProductListTestApp provides ThemeCubit and CatalogCubit above a BlocBuilder that passes the selected mode to MaterialApp.router. The providers retain ownership/automatic closure and remain outside the appearance rebuild boundary. Router and repository remain initState-owned. Toggling selects explicit light/dark mode for this session; setMode can restore system mode, but no return-to-system selector or persistence is exposed yet. Appearance changes do not invoke catalog loading. The sample list has a stable PageStorageKey for scroll retention.
+
+Manual browser verification after the ThemeCubit refinement observed the system-dark initial appearance and repeated light/dark switches, including consecutive clicks, with the same catalog URL, six products, CatalogCubit identity, loaded-state identity, and scroll position. A temporary entrypoint outside the project logged BlocObserver lifecycle/state events: ThemeCubit emitted system-to-light and alternating explicit modes, while CatalogCubit added no creation, close, or load/state transitions. That diagnostic source is not part of the shipped app. Formatting, static analysis, a production web release build, and an external diagnostic build passed. Live OS preference changes and return-to-system selection were not exercised. Automated theme regression tests remain final-stage work.
+
+The specified palette is retained. Dark filled buttons use a dark foreground on the blue accent for readable contrast. TODO during reusable-component work: avoid small dim text on the light surfaceVariant pairing (approximately 4.34:1), validate every component/state pairing, and consolidate sample card styling into the eventual ProductCard. The external architect review tracks these and final regression checks. Required reusable components and real API behavior remain unimplemented.
 
 ## 1. Scope and constraints
 
@@ -70,7 +82,7 @@ The existing StatefulWidget app owns its GoRouter once and disposes it when remo
 
 | State/resource | Owner | Lifetime and reset rule |
 | --- | --- | --- |
-| ThemeMode | App-level state | Starts from the system preference; user choice survives navigation/rebuilds, resets on process restart. |
+| ThemeMode | App-level ThemeCubit | Starts from the system preference; user choice survives navigation/rebuilds, resets on process restart. |
 | Route and selected product ID | GoRouter | `/products` or `/products/:id` is the source of truth. There is no second mutable selected-ID store. |
 | Loaded products, committed query/category, cursor, loading/failure | CatalogCubit | One catalog session scoped above detail routes and layout changes. A new effective filter resets products/cursor and scroll. |
 | Category metadata and its loading/failure | CategoriesCubit | Loads once per app session; retries independently. |
@@ -203,4 +215,4 @@ These are full-product acceptance checks, not a claim that the sample completes 
 | Performance/platforms | Observe 100+ item scrolling and image loading; record actual Android/web builds and any iOS verification separately. |
 | Tests and handoff | Final stage adds model/state unit tests, widget tests for at least two components, and routing/regression coverage; README/history reflect actual decisions and results. |
 
-The separate architect review should resolve contract contradictions before feature implementation and keep later improvements in a prioritized TODO list. The next code checkpoint remains the theme foundation. The developer handles all staging, commits, and pushes; this document does not authorize expanding implementation scope.
+The separate architect review should resolve contract contradictions before feature implementation and keep later improvements in a prioritized TODO list. The theme foundation is complete; the next code checkpoint is the required reusable components. The developer handles all staging, commits, and pushes; this document does not authorize expanding implementation scope.

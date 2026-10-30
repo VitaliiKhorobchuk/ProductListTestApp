@@ -102,7 +102,7 @@ Add dependencies when implementation begins using them. Choose supporting image-
 ## Implementation sequence
 
 1. **App and MVVM architecture skeleton:** separate startup, app composition, and centralized routing. Implement one working offline catalog slice with immutable models, a repository contract/sample implementation, a pure-Dart Cubit/ViewModel and state, and a View displaying example products with reload and loading/empty/error states. Inject the repository/Cubit above routing. Completion: the sample runs, analysis is clean, and the architect reviews the complete layer boundaries. Automated tests remain deferred.
-2. **Theme foundation:** introduce ThemeExtension tokens, light/dark ThemeData, and working theme switching within the app skeleton.
+2. **Theme foundation (implemented):** AppTokens extends ThemeExtension for colors, spacing, radii, and rating colors; AppTheme supplies light/dark ThemeData. An app-level ThemeCubit starts with ThemeMode.system; the app listens through BlocBuilder, and the sample screen sends appearance actions directly to that Cubit without router callbacks. Manual switching preserves the route, loaded state, Cubit instance, and scroll position. Formatting, analysis, a web release build, and independent architecture/design review complete this checkpoint; automated tests remain deferred.
 3. **Reusable components:** required component APIs and variants, image/price presentation, and manual component checks. Use the running app foundation to inspect components as they are added.
 4. **Models and API:** extend the sample models with defensive JSON parsing/validation; implement ProductsApi and RemoteProductsRepository against the existing contract, including remote cancellation/deadlines and endpoint verification.
 5. **Cubits:** extend the catalog ViewModel with query/pagination behavior and introduce category/detail Cubits with manual behavior checks.
@@ -112,7 +112,7 @@ Add dependencies when implementation begins using them. Choose supporting image-
 9. **Tablet layout:** adaptive master-detail behavior, selection prompt, resizing, and safe-area checks.
 10. **Final verification and handoff:** add and run the required model-validation and state-management unit tests, widget tests for at least two design-system components, and routing/regression tests. Complete formatting, static analysis, target-platform builds, accessibility/layout checks, performance checks with 100+ products, and documentation.
 
-The architecture checkpoint is a runnable offline MVVM example with a catalog route, injected repository, Cubit/state, sample products, clean analysis, manual reload verification, and an architect review. Suggested commit message: `feat: add MVVM catalog skeleton with sample data`.
+The architecture checkpoint is a runnable offline MVVM example with a catalog route, injected repository, Cubit/state, sample products, clean analysis, manual reload verification, and an architect review. The theme checkpoint now builds on it without changing the data layers. The next increment is reusable components. Suggested theme commit message: `feat: add token-based light and dark themes`.
 
 Describe the overall folder structure in this plan and create each folder when its first real file is added. Each increment should leave the app runnable and be checked through review, static analysis, and appropriate manual/build checks. Automated tests are deferred to final verification. Keep changes small enough to review and explain. The user handles all staging, commits, and pushes.
 

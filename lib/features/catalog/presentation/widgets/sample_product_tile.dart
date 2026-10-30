@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../design_system/theme/app_tokens.dart';
 import '../../models/product.dart';
 
 /// Basic sample presentation; the design-system ProductCard comes later.
@@ -10,32 +11,53 @@ class SampleProductTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final textTheme = Theme.of(context).textTheme;
     final amount = product.discountedPrice;
     return Card(
+      color: tokens.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(tokens.radius),
+        side: BorderSide(color: tokens.border),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(tokens.spaceLg),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const CircleAvatar(child: Icon(Icons.shopping_bag_outlined)),
-            const SizedBox(width: 16),
+            CircleAvatar(
+              backgroundColor: tokens.surfaceVariant,
+              foregroundColor: tokens.primary,
+              child: const Icon(Icons.shopping_bag_outlined),
+            ),
+            SizedBox(width: tokens.spaceLg),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     product.title,
-                    style: Theme.of(context).textTheme.titleMedium,
+                    style: textTheme.titleMedium?.copyWith(
+                      color: tokens.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  const SizedBox(height: 4),
+                  SizedBox(height: tokens.spaceXs),
                   Text(
                     '${product.brand} · ${product.category.replaceAll('-', ' ')}',
+                    style: textTheme.bodySmall?.copyWith(
+                      color: tokens.onSurfaceDim,
+                    ),
                   ),
-                  const SizedBox(height: 8),
+                  SizedBox(height: tokens.spaceSm),
                   Text(
                     amount == null
                         ? 'Price unavailable'
                         : '\$${amount.toStringAsFixed(2)} USD',
+                    style: textTheme.bodyMedium?.copyWith(
+                      color: tokens.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ],
               ),

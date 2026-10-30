@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../app/theme/theme_cubit.dart';
+import '../../../../design_system/theme/app_tokens.dart';
 import '../cubit/catalog_cubit.dart';
 import '../widgets/sample_product_tile.dart';
 
@@ -9,10 +11,22 @@ class CatalogScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Products'),
         actions: [
+          IconButton(
+            tooltip: isDark ? 'Switch to light theme' : 'Switch to dark theme',
+            onPressed: () => context.read<ThemeCubit>().toggle(
+              systemBrightness: MediaQuery.platformBrightnessOf(context),
+            ),
+            icon: Icon(
+              isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
+            ),
+          ),
           IconButton(
             tooltip: 'Reload products',
             onPressed: () => context.read<CatalogCubit>().load(),
@@ -26,20 +40,27 @@ class CatalogScreen extends StatelessWidget {
             switch (state.status) {
               case CatalogStatus.initial:
               case CatalogStatus.loading:
-                return const Center(child: CircularProgressIndicator());
+                return const Center(
+                  child: CircularProgressIndicator(
+                    semanticsLabel: 'Loading products',
+                  ),
+                );
               case CatalogStatus.loaded:
                 return ListView.separated(
-                  padding: const EdgeInsets.all(16),
+                  key: const PageStorageKey<String>('sample-catalog-scroll'),
+                  padding: EdgeInsets.all(tokens.spaceLg),
                   itemCount: state.products.length + 1,
                   separatorBuilder: (context, index) =>
-                      const SizedBox(height: 8),
+                      SizedBox(height: tokens.spaceSm),
                   itemBuilder: (context, index) {
                     if (index == 0) {
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
+                        padding: EdgeInsets.only(bottom: tokens.spaceSm),
                         child: Text(
                           'Example catalog · ${state.products.length} products · offline data',
-                          style: Theme.of(context).textTheme.bodySmall,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: tokens.onSurface,
+                          ),
                         ),
                       );
                     }
@@ -86,23 +107,35 @@ class _CatalogMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    final theme = Theme.of(context);
     return Center(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
+        padding: EdgeInsets.all(tokens.spaceXl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 48),
-            const SizedBox(height: 16),
+            Icon(
+              icon,
+              size: 48,
+              color: onRetry == null ? tokens.primary : theme.colorScheme.error,
+            ),
+            SizedBox(height: tokens.spaceLg),
             Text(
               title,
-              style: Theme.of(context).textTheme.titleLarge,
+              style: theme.textTheme.titleLarge,
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
-            Text(message, textAlign: TextAlign.center),
+            SizedBox(height: tokens.spaceSm),
+            Text(
+              message,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: tokens.onSurface,
+              ),
+              textAlign: TextAlign.center,
+            ),
             if (onRetry != null) ...[
-              const SizedBox(height: 16),
+              SizedBox(height: tokens.spaceLg),
               FilledButton(onPressed: onRetry, child: const Text('Retry')),
             ],
           ],

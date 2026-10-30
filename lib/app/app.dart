@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+import '../design_system/theme/app_theme.dart';
 import '../features/catalog/data/products_repository.dart';
 import '../features/catalog/data/sample_products_repository.dart';
 import '../features/catalog/presentation/cubit/catalog_cubit.dart';
 import 'router.dart';
+import 'theme/theme_cubit.dart';
 
 class ProductListTestApp extends StatefulWidget {
   const ProductListTestApp({super.key, this.repository});
@@ -39,13 +41,23 @@ class _ProductListTestAppState extends State<ProductListTestApp> {
   Widget build(BuildContext context) {
     return RepositoryProvider<ProductsRepository>.value(
       value: _repository,
-      child: BlocProvider(
-        create: (context) =>
-            CatalogCubit(context.read<ProductsRepository>())..load(),
-        child: MaterialApp.router(
-          title: 'ProductListTestApp',
-          debugShowCheckedModeBanner: false,
-          routerConfig: _router,
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider(create: (context) => ThemeCubit()),
+          BlocProvider(
+            create: (context) =>
+                CatalogCubit(context.read<ProductsRepository>())..load(),
+          ),
+        ],
+        child: BlocBuilder<ThemeCubit, ThemeMode>(
+          builder: (context, mode) => MaterialApp.router(
+            title: 'ProductListTestApp',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light,
+            darkTheme: AppTheme.dark,
+            themeMode: mode,
+            routerConfig: _router,
+          ),
         ),
       ),
     );
