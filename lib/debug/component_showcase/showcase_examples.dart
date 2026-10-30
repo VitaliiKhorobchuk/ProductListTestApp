@@ -9,12 +9,21 @@ import '../../design_system/components/state_message.dart';
 import '../../design_system/theme/app_tokens.dart';
 import 'loading_image_preview.dart';
 import 'showcase_models.dart';
+import 'search_field_examples.dart';
 
 const _sampleImage = 'assets/images/sample_products/red_lipstick.webp';
 const _missingImage =
     'assets/images/sample_products/missing_preview_image.webp';
 
 final showcaseComponents = <ShowcaseComponent>[
+  ShowcaseComponent(
+    id: 'search-field',
+    title: 'ProductSearchField',
+    description:
+        'Search typing, submission, clear, focus and lifecycle states.',
+    icon: Icons.search,
+    examples: buildSearchFieldExamples(),
+  ),
   ShowcaseComponent(
     id: 'product-card',
     title: 'ProductCard',
