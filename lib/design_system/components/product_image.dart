@@ -77,23 +77,30 @@ class _ProductImageState extends State<ProductImage> {
               height: double.infinity,
               fit: BoxFit.contain,
               semanticLabel: widget.semanticLabel,
+              frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                return frame == null ? _loading(context) : child;
+              },
               loadingBuilder: (context, child, progress) {
                 if (progress == null) return child;
-                return Semantics(
-                  label: 'Loading ${widget.semanticLabel}',
-                  child: Center(
-                    child: SizedBox.square(
-                      dimension: tokens.spaceXl,
-                      child: const CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  ),
-                );
+                return _loading(context);
               },
               errorBuilder: (context, error, stackTrace) {
                 _warnOnce('image request failed');
                 return _fallback(context, 'Image unavailable');
               },
             ),
+    );
+  }
+
+  Widget _loading(BuildContext context) {
+    return Semantics(
+      label: 'Loading ${widget.semanticLabel}',
+      child: Center(
+        child: SizedBox.square(
+          dimension: context.tokens.spaceXl,
+          child: const CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
     );
   }
 

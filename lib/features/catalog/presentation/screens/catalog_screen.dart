@@ -1,7 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/theme/theme_cubit.dart';
+import '../../../../debug/debug_showcase_button.dart';
+import '../../../../design_system/components/empty_state.dart';
+import '../../../../design_system/components/error_state.dart';
 import '../../../../design_system/components/product_card.dart';
 import '../../../../design_system/theme/app_tokens.dart';
 import '../../models/product.dart';
@@ -25,6 +29,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
       appBar: AppBar(
         title: const Text('Products'),
         actions: [
+          if (kDebugMode) const DebugShowcaseButton(),
           IconButton(
             tooltip: _variant == ProductCardVariant.standard
                 ? 'Show grid view'
@@ -73,17 +78,16 @@ class _CatalogScreenState extends State<CatalogScreen> {
                   variant: _variant,
                 );
               case CatalogStatus.empty:
-                return const _CatalogMessage(
-                  icon: Icons.inventory_2_outlined,
+                return const EmptyState(
                   title: 'No products yet',
                   message: 'There are no products in this example catalog.',
                 );
               case CatalogStatus.error:
-                return _CatalogMessage(
-                  icon: Icons.cloud_off_outlined,
+                return ErrorState(
                   title: 'Could not load products',
                   message: state.failure?.message ?? 'Please try again.',
-                  onRetry: () => context.read<CatalogCubit>().retry(),
+                  actionLabel: 'Retry',
+                  onAction: () => context.read<CatalogCubit>().retry(),
                 );
             }
           },
@@ -168,59 +172,6 @@ class _CatalogProducts extends StatelessWidget {
           ],
         );
       },
-    );
-  }
-}
-
-class _CatalogMessage extends StatelessWidget {
-  const _CatalogMessage({
-    required this.icon,
-    required this.title,
-    required this.message,
-    this.onRetry,
-  });
-
-  final IconData icon;
-  final String title;
-  final String message;
-  final VoidCallback? onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    final theme = Theme.of(context);
-    return Center(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.all(tokens.spaceXl),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              icon,
-              size: 48,
-              color: onRetry == null ? tokens.primary : theme.colorScheme.error,
-            ),
-            SizedBox(height: tokens.spaceLg),
-            Text(
-              title,
-              style: theme.textTheme.titleLarge,
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: tokens.spaceSm),
-            Text(
-              message,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: tokens.onSurface,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            if (onRetry != null) ...[
-              SizedBox(height: tokens.spaceLg),
-              FilledButton(onPressed: onRetry, child: const Text('Retry')),
-            ],
-          ],
-        ),
-      ),
     );
   }
 }
