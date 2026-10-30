@@ -7,6 +7,7 @@ import '../../design_system/components/product_image.dart';
 import '../../design_system/components/rating_badge.dart';
 import '../../design_system/components/state_message.dart';
 import '../../design_system/theme/app_tokens.dart';
+import 'category_chip_examples.dart';
 import 'loading_image_preview.dart';
 import 'showcase_models.dart';
 import 'search_field_examples.dart';
@@ -16,6 +17,13 @@ const _missingImage =
     'assets/images/sample_products/missing_preview_image.webp';
 
 final showcaseComponents = <ShowcaseComponent>[
+  ShowcaseComponent(
+    id: 'category-chip',
+    title: 'CategoryChip',
+    description: 'Controlled selection, disabled states, long labels and a single-selection group.',
+    icon: Icons.category_outlined,
+    examples: buildCategoryChipExamples(),
+  ),
   ShowcaseComponent(
     id: 'search-field',
     title: 'ProductSearchField',
