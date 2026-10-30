@@ -2,6 +2,8 @@
 
 This document records the initial architecture and implementation decisions for the Flutter Product Catalog assessment. Update it as decisions change and record the reasons for meaningful deviations.
 
+Detailed state ownership, contracts, request flows, failure policies, and acceptance criteria are defined in [system-design.md](system-design.md).
+
 ## Required functionality
 
 - Consume the DummyJSON Products API.
@@ -60,11 +62,12 @@ Create folders as their first implementation files are added. A separate use-cas
 ## Technology choices
 
 - **Flutter and Dart:** use the installed stable SDK and record its version in the README; commit the application dependency lockfile.
-- **flutter_bloc with Cubit:** explicit, testable state transitions with a small API that suits this app's actions and follows the assessment's encouraged approach.
+- **bloc and flutter_bloc with Cubit:** the pure-Dart bloc package supplies the ViewModel; flutter_bloc binds its state/actions to Flutter Views through providers/builders. This follows the assessment's encouraged approach.
+- **Equatable:** compare immutable states, models, and effective queries by value without a code-generation pipeline.
 - **go_router:** centralized declarative routes, product-ID parameters, and direct detail links.
 - **Dio:** HTTP requests, timeouts, and consistent transport-error handling.
 - **ThemeExtension and Material ThemeData:** custom color, spacing, radius, and semantic tokens shared by light/dark components.
-- **Flutter testing tools:** test behavior as each feature is added; introduce supporting test packages when they are used.
+- **Flutter testing tools:** add and run automated unit/widget tests during the final verification step. During implementation, use manual review, static analysis, formatting, and appropriate build checks.
 
 Add dependencies when implementation begins using them. Choose supporting image-caching and price-formatting packages during their component implementation and document platform-specific behavior.
 
@@ -98,20 +101,20 @@ Add dependencies when implementation begins using them. Choose supporting image-
 
 ## Implementation sequence
 
-1. **App skeleton and sample screen:** replace the inital counter screen with a simple placeholder catalog screen. Separate startup in `lib/main.dart`, application configuration in `lib/app/app.dart`, centralized routing in `lib/app/router.dart`, and the screen in `lib/features/catalog/presentation/screens/catalog_screen.dart`. Configure MaterialApp.router and the initial catalog route, add GoRouter when used, and update the starter widget test. Completion: the sample screen runs and its widget test passes.
+1. **App and MVVM architecture skeleton:** separate startup, app composition, and centralized routing. Implement one working offline catalog slice with immutable models, a repository contract/sample implementation, a pure-Dart Cubit/ViewModel and state, and a View displaying example products with reload and loading/empty/error states. Inject the repository/Cubit above routing. Completion: the sample runs, analysis is clean, and the architect reviews the complete layer boundaries. Automated tests remain deferred.
 2. **Theme foundation:** introduce ThemeExtension tokens, light/dark ThemeData, and working theme switching within the app skeleton.
-3. **Reusable components:** required component APIs and variants, image/price presentation, and component tests. Use the running app foundation to inspect components as they are added.
-4. **Models and API:** defensive parsing tests, API service, repository contract, and real endpoint verification. Introduce each layer as its first real data flow is implemented.
-5. **Cubits:** initial loading, failure/retry, category/detail state, and state-transition tests.
-6. **Catalog screen:** replace placeholder content with real products and loading, error, and empty states.
-7. **Search, filters, and pagination:** debouncing, title/category intersection, raw cursor handling, stale-response protection, and focused regression tests.
+3. **Reusable components:** required component APIs and variants, image/price presentation, and manual component checks. Use the running app foundation to inspect components as they are added.
+4. **Models and API:** extend the sample models with defensive JSON parsing/validation; implement ProductsApi and RemoteProductsRepository against the existing contract, including remote cancellation/deadlines and endpoint verification.
+5. **Cubits:** extend the catalog ViewModel with query/pagination behavior and introduce category/detail Cubits with manual behavior checks.
+6. **Catalog screen:** replace the sample repository binding with real API data and compose the required design-system components while retaining state rendering.
+7. **Search, filters, and pagination:** debouncing, title/category intersection, raw cursor handling, stale-response protection, and manual edge-case checks.
 8. **Details and navigation:** gallery, complete product information, direct links, Back behavior, and retained catalog state; extend the centralized routing established in step 1.
 9. **Tablet layout:** adaptive master-detail behavior, selection prompt, resizing, and safe-area checks.
-10. **Final verification and handoff:** formatting, static analysis, all tests, target-platform builds, accessibility/layout checks, performance checks with 100+ products, and completed documentation.
+10. **Final verification and handoff:** add and run the required model-validation and state-management unit tests, widget tests for at least two design-system components, and routing/regression tests. Complete formatting, static analysis, target-platform builds, accessibility/layout checks, performance checks with 100+ products, and documentation.
 
-The first coding checkpoint is a runnable app skeleton with a sample catalog route and a passing widget test. Suggested commit message for that checkpoint: `refactor: establish app structure and catalog route`.
+The architecture checkpoint is a runnable offline MVVM example with a catalog route, injected repository, Cubit/state, sample products, clean analysis, manual reload verification, and an architect review. Suggested commit message: `feat: add MVVM catalog skeleton with sample data`.
 
-Describe the overall folder structure in this plan and create each folder when its first real file is added. Each increment should leave the app runnable and include appropriate tests. Keep changes small enough to review and explain. The user handles all staging, commits, and pushes.
+Describe the overall folder structure in this plan and create each folder when its first real file is added. Each increment should leave the app runnable and be checked through review, static analysis, and appropriate manual/build checks. Automated tests are deferred to final verification. Keep changes small enough to review and explain. The user handles all staging, commits, and pushes.
 
 ## AI-assisted development workflow and final documentation
 
@@ -123,7 +126,7 @@ Follow an incremental development loop:
 
 1. Define a small checkpoint and observable completion criteria.
 2. Discuss the proposed approach, important alternatives, and Dart/Flutter concepts as needed. The developer directs scope and acceptance decisions.
-3. Implement a scoped, runnable change, review its responsibilities, add meaningful tests, and run appropriate checks.
+3. Implement a scoped, runnable change, review its responsibilities, and run appropriate manual/static/build checks. Add automated tests during final verification.
 4. Update the external overview after meaningful milestones, retaining completed results and significant refinements. Distinguish completed work and executed checks from planned work.
 5. Leave staging, commits, and pushes to the developer.
 
