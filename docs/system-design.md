@@ -1,6 +1,6 @@
 # ProductListTestApp system design
 
-This is the design baseline for the product-catalog assessment. The implemented foundation now includes startup, centralized routing, immutable models, a repository/API data path, CatalogCubit/state, app-level injection, a state-rendering View, and token-based light/dark themes. Initial loading now defaults to real remote data; fixture repositories remain available through explicit injection. Search/category/pagination/detail UI and the remaining full-product behaviors below are the target design, not a claim that every screen/action is complete. The [implementation plan](implementation-plan.md) defines the delivery sequence.
+This is the design baseline for the product-catalog assessment. The implemented foundation now includes startup, centralized routing, immutable models, a repository/API data path, CatalogCubit/state with query/pagination, independent CategoriesCubit/state, app-level injection, a state-rendering View, and token-based light/dark themes. Initial loading now defaults to real remote data; fixture repositories remain available through explicit injection. Search/category/pagination UI is now connected. Detail/adaptive navigation and remaining full-product behaviors below are the target design, not a claim that every screen/action is complete. The [implementation plan](implementation-plan.md) defines the delivery sequence.
 
 ## Implemented MVVM architecture and current binding
 
@@ -8,7 +8,7 @@ The default app now uses the complete remote dependency path:
 
 `CatalogScreen -> CatalogCubit -> ProductsRepository -> RemoteProductsRepository -> ProductsApi -> Dio -> DummyJSON`
 
-Results flow back as immutable ProductPage/Product values, then CatalogState, then BlocBuilder output. The View sends load/retry actions and renders initial/loading/loaded/empty/error states. It does not read fixture data or construct a repository.
+Results flow back as immutable ProductPage/Product values, then CatalogState, then BlocBuilder output. The View sends load/retry, search/category and pagination actions, consumes category metadata independently, and renders initial/loading/loaded/empty/error and footer states. It does not read fixture data or construct a repository.
 
 | Responsibility | Implemented files |
 | --- | --- |
@@ -17,9 +17,9 @@ Results flow back as immutable ProductPage/Product values, then CatalogState, th
 | HTTP service and client factory | `features/catalog/data/products_api.dart`, `products_api_client.dart` |
 | Defensive API mapping | `features/catalog/data/product_parser.dart`, `raw_product_page.dart` |
 | Data contract and sample source | `features/catalog/data/products_repository.dart`, `sample_products_repository.dart`, `sample_product_data.dart` |
-| ViewModel and state | `features/catalog/presentation/cubit/catalog_cubit.dart`, `catalog_state.dart` |
+| ViewModel and state | `features/catalog/presentation/cubit/catalog_cubit.dart`, `catalog_state.dart`, `categories_cubit.dart`, `categories_state.dart` |
 | View | `features/catalog/presentation/screens/catalog_screen.dart`, `design_system/components/product_card.dart`, `rating_badge.dart`, `product_image.dart` |
-| Composition | `app/app.dart` injects a repository and lets BlocProvider create/close the Cubit above the router. |
+| Composition | `app/app.dart` injects a repository and lets BlocProvider create/close both feature Cubits above the router. |
 | Shared request/failure types | `core/request_control.dart`, `core/catalog_failure.dart` |
 
 Paths above are relative to lib/. CatalogCubit imports the pure-Dart bloc package; catalog Flutter integration is confined to app/View code through flutter_bloc. The app-level ThemeCubit is separate from the catalog feature and uses Flutter appearance enums. Equatable supplies value comparisons. The app accepts a repository override at startup. The default binding uses RemoteProductsRepository. An optional startup-only repository override creates no app-owned HTTP client and remains caller-owned; changing it after mounting does not rebind the existing State.
@@ -178,6 +178,35 @@ After the developer authorized the connected phone, the Android debug APK built 
 
 Data/state and independent architect reviews found no blockers. An actual-app screenshot was saved externally and temporary viewport overrides reset. The external diagnostic source/build/server were removed after inspection; no diagnostics or fault controls ship in the project. No tests, dependencies, README, staging, or commits changed. Final checks remain for pending-load teardown, client ownership instrumentation, Android release/profile and broader native/iOS behavior, and full regression/accessibility/performance coverage. Next are catalog query/pagination/category/detail state and control integration; use cases remain an optional future improvement.
 
+## Catalog UI integration checkpoint
+
+CatalogScreen now connects the reusable search input and category chips to the existing Cubits. The screen owns/disposes its search controller, preserves raw drafts and pending debounce across category/page/theme changes, and only synchronizes genuine external committed-text changes. Enter and clear use the same commit callback; ProductSearchField remains the only debounce owner. Categories load on their first UI consumer, expose independent loading/idle/empty/error/retry, and keep All products and a missing-selected-category fallback usable.
+
+One vertical CustomScrollView contains filters, status, lazy product slivers and pagination feedback. CatalogCategoryFilters isolates metadata presentation; CatalogProductSliver preserves natural-height standard/compact rows. Filter-aware empty recovery, initial idle load actions, loaded count, footer loading and explicit same-cursor retry are connected. Asynchronous status/footer and loaded-count messages have live-region semantics; loaded rows remain outside status announcements.
+
+Pagination checks current state and remaining extent at roughly 320 logical pixels, then coalesces work after layout. Metrics-only changes request a frame explicitly. Recheck after raw cursor/busy changes, layout/resize and duplicate-only batches; stop on busy, error or exhaustion. Query changes/forced reload clear both layout offsets and reset to the top only after a valid matching position exists. Layout switches save/restore bounded per-variant offsets without recording stale pixels during rapid pending restores. Append, theme and showcase navigation retain browsing position.
+
+UI/design, data/state and architect reviews identified and resolved pending reset consumption, per-layout position retention, missing frame requests, rapid local-query marker consumption and asynchronous announcement gaps. Formatting, full analysis and production web builds passed. Coordinator-executed browser checks covered live red title results/category intersection, no-match/clear, independent category/product retries, retained footer errors/same-cursor retry, duplicate-only automatic continuation, raw exhaustion, both layouts/themes, showcase Back, filter reset across layouts, tall-viewport refill/resize and narrow/short layouts with 200% text. Controlled fixtures were injected through a temporary external inspection entrypoint, not shipped application diagnostics or automated tests.
+
+QA now participates in manual acceptance and evidence review. Its browser controls were unavailable in this checkpoint, so the coordinator executed browser checks and QA independently reviewed source, three screenshot artifacts and the reported call/cursor observations; the external QA record distinguishes these roles. Per-character Flutter-web accessibility input automation was unreliable; atomic editing, Enter, clear and result transitions were observed, while exact typing/debounce timing, native IME/soft keyboard and real screen-reader behavior remain unverified.
+
+Required remaining work includes initial skeleton placeholders (current feedback is a spinner/label), product details/navigation, adaptive master-detail behavior and final automated/native/accessibility/performance verification. Broad constants/localization cleanup remains deferred. No dependencies, README, automated tests, staging or commits changed; pre-existing unstaged state-management work was preserved.
+
+
+## Catalog and category state checkpoint
+
+CatalogCubit now exposes `setSearch`, `selectCategory`, `loadMore` and `retryLoadMore` alongside forced `load/retry`. Search changes preserve the category and category changes preserve committed text. CatalogQuery equality suppresses casing/outer-whitespace duplicates; the input component remains the only debounce owner. Effective filter changes and forced reloads increment a generation, cancel the previous control, clear rows/cursor/failures and fetch from zero.
+
+CatalogState now includes `isLoadingMore`, `paginationFailure` and `copyWith` with explicit nullable-failure clearing. Its collections remain immutable and every visible field participates in Equatable equality. Pagination starts only from loaded state with remaining raw data and no active operation. It retains rows and status while busy, merges IDs in existing-first order, and advances the raw cursor even when a complete batch contributes no new IDs. An exhausted empty continuation retains the loaded rows. A failed page preserves query/rows/cursor/hasMore, exposes a footer failure and blocks automatic repetition; `retryLoadMore` retries the same cursor. Repository page metadata is checked for invalid progress/consistency before publication; totals are not compared across separate calls.
+
+Publication requires current generation, current control identity, an open Cubit and a noncancelled control. Finally cleanup checks ownership without requiring a noncancelled control, so it releases a still-current busy operation while never clearing a newer request. Unexpected current cancellation is silent and returns an initial load to initial/idle or a page to loaded/not-busy; normal production cancellation occurs on replacement/disposal. UI integration must distinguish idle from an active load.
+
+CategoriesCubit/CategoriesState now own independent initial/loading/loaded/empty/error metadata. `load` shares the actual in-flight Future and reuses loaded/empty metadata; `retry` deliberately cancels/replaces the operation. A Completer is installed before work begins to keep coalescing correct even for synchronous repository failures. Category controls, generations, failures and close cleanup do not affect product requests. App composition registers a lazy category provider above the router: the first category consumer starts loading, with the subsequent UI checkpoint adding the first real category consumer.
+
+Formatting/full analysis and a production web build passed. Temporary external console inspection printed controlled outcomes for duplicate queries/IDs, overlapping pages, duplicate-only cursor progress, exhausted empty continuation, typed footer failure and explicit retry, stale successes/errors/finally, invalid page data, current cancellation and pending-load close, immutable state, category coalescing/caching/replacement, synchronous/generic failures and independent cancellation. Live Cubits loaded 20 then 40 unique products, 24 categories, nine title-only red matches and only Red Onions for red plus groceries. These are manual inspection results, not automated test coverage. Data/state and architect source reviews found no blockers. Automated tests remain final-stage work.
+
+The subsequent catalog UI checkpoint now wires the actual search input, category strip, inline category retry, near-bottom/post-layout pagination refill, footer retry and effective-query scroll reset. Detail state/navigation remain later work. No dependencies, README, automated tests, staging or commits changed.
+
 ## 1. Scope and constraints
 
 Build a Flutter client consuming the public DummyJSON Products API over HTTPS, with base URL `https://dummyjson.com` ([API reference](https://dummyjson.com/docs/products)). There is no application backend, authentication, checkout, or payment flow. The mandatory scope is catalog browsing, title search, a single category filter, infinite scrolling, product details/deep links, a themed component library, and phone/tablet layouts.
@@ -280,7 +309,7 @@ Catalog state contains: status (initial/loading/loaded/empty/error), committed C
 
 ### Initial load and category metadata
 
-Create catalog/category Cubits at catalog-session scope. Start their loads independently. Catalog moves initial -> loading -> loaded, empty, or error. Category failure shows an inline retry while product browsing remains available.
+Create catalog/category Cubits at catalog-session scope. Start their loads independently. The category provider is lazy: its first consumer creates CategoriesCubit and calls load; direct showcase startup still performs no unused category request; CatalogCategoryFilters is now the normal catalog consumer. Category load returns the active Future while busy and reuses loaded/empty metadata. Explicit retry cancels/replaces the category operation; product state is unaffected. Catalog moves initial -> loading -> loaded, empty, or error. Category failure shows an inline retry while product browsing remains available.
 
 ### Search and category changes
 

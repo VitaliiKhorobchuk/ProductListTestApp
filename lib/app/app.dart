@@ -9,6 +9,7 @@ import '../features/catalog/data/products_api_client.dart';
 import '../features/catalog/data/products_repository.dart';
 import '../features/catalog/data/remote_products_repository.dart';
 import '../features/catalog/presentation/cubit/catalog_cubit.dart';
+import '../features/catalog/presentation/cubit/categories_cubit.dart';
 import 'router.dart';
 import 'theme/theme_cubit.dart';
 
@@ -59,6 +60,11 @@ class _ProductListTestAppState extends State<ProductListTestApp> {
       child: MultiBlocProvider(
         providers: [
           BlocProvider(create: (context) => ThemeCubit()),
+          // Lazy: fetch metadata when the catalog first consumes category state.
+          BlocProvider(
+            create: (context) =>
+                CategoriesCubit(context.read<ProductsRepository>())..load(),
+          ),
           BlocProvider(
             create: (context) =>
                 CatalogCubit(context.read<ProductsRepository>())..load(),
