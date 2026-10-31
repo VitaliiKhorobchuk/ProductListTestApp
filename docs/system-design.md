@@ -2,6 +2,12 @@
 
 This is the design baseline for the product-catalog assessment. The implemented foundation now includes startup, centralized routing, immutable models, a repository/API data path, CatalogCubit/state with query/pagination, independent CategoriesCubit/state, a pure-Dart ProductDetailCubit/state foundation, app-level injection, a state-rendering View, and token-based light/dark themes. Initial loading now defaults to real remote data; fixture repositories remain available through explicit injection. Search/category/pagination UI is now connected. Phone detail UI/navigation is implemented. Adaptive master-detail is now implemented; final full-product verification below remains planned. The [implementation plan](implementation-plan.md) defines the delivery sequence.
 
+## Automated assessment test baseline
+
+Ten focused tests now cover the three required assessment testing areas: four CatalogCubit state/transition tests, four ProductParser model-validation tests, and widget tests for RatingBadge and CategoryChip. They run with the existing flutter_test dependency, a local repository stub and the real app themes, without HTTP or production-code changes. All ten tests and static analysis passed.
+
+This baseline does not claim exhaustive Cubit/repository/async/routing/responsive coverage. English localization, broader manual/platform verification and final delivery documentation remain pending; additional regression tests may be added when justified. See the implementation plan for the test inventory and command.
+
 ## Implemented MVVM architecture and current binding
 
 The default app now uses the complete remote dependency path:

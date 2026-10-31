@@ -124,7 +124,7 @@ Add dependencies when implementation begins using them. The first card increment
 7. **Search, filters, and pagination (implemented):** input debounce/Enter/clear, title/category intersection, raw cursor handling, stale-response guards, cross-batch deduplication, near-bottom/post-layout/resize refill and explicit footer retry are wired. Query changes clear both layout scroll offsets; append/theme/showcase preserve position. Manual edge cases and role-based reviews passed; exact native input/screen-reader and automated regression coverage remain final-stage verification.
 8. **Phone details and navigation (implemented):** route-owned ProductDetailCubit drives loading/recovery/error/notFound and complete product details/gallery. Cards open nested /products/:id; decimal URL parsing delegates numeric validity to the repository. Shared price/text/image policies avoid duplicate rules. Hash direct links/reload, Back/Browse, gallery controls and warm catalog retention have manual evidence. Tablet master-detail is implemented in step9; final native/automated/accessibility checks remain next.
 9. **Tablet layout (implemented):** persistent catalog/detail shell, shared safe-width policy, route-derived selection prompt/highlight, adaptive Back/Clear chrome, independent scrolling and retained state across resizing.
-10. **Final verification and handoff:** add and run the required model-validation and state-management unit tests, widget tests for at least two design-system components, and routing/regression tests. Complete formatting, static analysis, target-platform builds, accessibility/layout checks, performance checks with 100+ products, and documentation.
+10. **Final verification and handoff (required test baseline implemented):** ten focused tests cover Cubit transitions, data validation/model parsing and two design-system components. Remaining work includes localization, target-platform/accessibility/layout/performance verification and final documentation. Deeper repository, asynchronous-safety and routing regression tests remain recommended follow-ups beyond the PDF baseline.
 
 The architecture checkpoint is a runnable offline MVVM example with a catalog route, injected repository, Cubit/state, sample products, clean analysis, manual reload verification, and an architect review. The theme checkpoint now builds on it without changing the data layers. RatingBadge/ProductCard are the first completed component increment, with clean formatting/analysis, builds, UI/design and architecture review, and manual variants/themes, phone-width, large-text, fallback, keyboard, and scroll checks. ErrorState/EmptyState extraction is complete with clean formatting/analysis, production/preview builds, UI/design and architecture reviews, and manual empty/error/retry, inline, narrow/short, large-text, and keyboard checks. ProductSearchField and CategoryChip complete the required reusable-component implementation checkpoint. Defensive model parsing, ProductsApi, and RemoteProductsRepository are now implemented and reviewed. Main-app remote initial loading, catalog/category state and screen-control integration are implemented and reviewed. Initial skeletons and phone details/navigation are implemented. Adaptive master-detail is implemented; full-product acceptance remains in the final stage.
 
@@ -245,6 +245,21 @@ The showcase now contains eight components and 73 named examples, including 11 P
 - Removed replaced private validation helpers and the repeated matching predicate. Full analysis reports no unused declarations. Public fixture factories/injection seams remain intentional; simple index arithmetic, explicit sample values and API schema keys stay local.
 
 Formatting, full analysis, release web and Android debug builds passed. Print-only external inspection covered numeric/rating boundaries, parser fallbacks, encoded endpoints, defaults, sample filtering and live20+20 pagination/Red-Groceries matching. Browser smoke checks and Pixel7Pro/Android17 manual launch, native typing/Enter, combined red/Beauty filtering, detail, Android Back and light/dark appearance were checked. External QA notes distinguish these observations from deferred automated coverage. No tests, dependencies, README, staging or commits changed.
+
+### Assessment-required automated tests (implemented)
+
+The compact baseline contains ten tests using the existing flutter_test dependency. The PDF specifies three coverage areas rather than an exact total number of tests.
+
+| Required area | Tests | Coverage |
+| --- | --- | --- |
+| State-management unit tests | 4 | CatalogCubit initial/loading/loaded, empty results, failure/retry and pagination with duplicate-ID merging. |
+| Model parsing/data-validation unit tests | 4 | Valid API fields, optional-field fallbacks, rejected IDs and raw cursor advancement while malformed records are skipped. |
+| Design-system widget tests | 2 | RatingBadge content/color/accessibility label with light theme; CategoryChip callback and parent-owned selection with dark theme. |
+
+Files live under test/features/catalog/ and test/design_system/components/, with one small shared theme wrapper under test/support/. Run `flutter test` from the project root. Tests use an in-memory repository stub and decoded maps; no HTTP, fixture delays, mocks package or additional dependencies are needed.
+
+All ten tests and full analysis passed; test sources are formatted. This is the selected minimum-scope baseline, not exhaustive coverage of all Cubits, API/repository failures, cancellation/deadlines, search races, routes, responsive layout or every component state. Those remain possible regression follow-ups alongside the remaining manual/platform verification. No production code, dependency files, README, staging or commits changed for this checkpoint.
+
 
 ### Localization (next checkpoint)
 
