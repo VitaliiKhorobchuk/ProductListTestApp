@@ -1,5 +1,6 @@
 import '../../../core/catalog_failure.dart';
 import '../../../core/request_control.dart';
+import '../models/catalog_pagination.dart';
 import '../models/catalog_query.dart';
 import '../models/category.dart';
 import '../models/product.dart';
@@ -9,7 +10,7 @@ abstract class ProductsRepository {
   Future<ProductPage> getProducts({
     required CatalogQuery query,
     int skip = 0,
-    int limit = 20,
+    int limit = CatalogPagination.pageSize,
     RequestControl? control,
   });
 

@@ -12,6 +12,7 @@ class ProductDetailContent extends StatelessWidget {
   const ProductDetailContent({super.key, required this.product});
 
   static const _maximumContentWidth = 720.0;
+  static const _descriptionLineHeight = 1.6;
   final Product product;
 
   @override
@@ -114,7 +115,7 @@ class ProductDetailContent extends StatelessWidget {
                   product.displayDescription,
                   style: textTheme.bodyLarge?.copyWith(
                     color: tokens.onSurfaceDim,
-                    height: 1.6,
+                    height: _descriptionLineHeight,
                   ),
                 ),
                 SizedBox(height: tokens.spaceXl),
@@ -129,6 +130,8 @@ class ProductDetailContent extends StatelessWidget {
 
 class _ProductAvailability extends StatelessWidget {
   const _ProductAvailability({required this.stock});
+
+  static const _iconSize = 20.0;
   final int? stock;
 
   @override
@@ -157,7 +160,7 @@ class _ProductAvailability extends StatelessWidget {
                 : isInStock
                 ? Icons.check_circle_outline
                 : Icons.remove_circle_outline,
-            size: 20,
+            size: _iconSize,
             color: color,
           ),
         ),

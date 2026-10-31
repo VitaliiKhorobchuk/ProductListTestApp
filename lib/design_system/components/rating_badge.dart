@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 
+import '../../core/product_rating.dart';
 import '../theme/app_tokens.dart';
 
 /// A numeric rating whose meaning remains available without its color.
 class RatingBadge extends StatelessWidget {
   const RatingBadge({super.key, required this.rating, this.reviewCount});
+
+  static const _starSize = 18.0;
+  static const _borderOpacity = .35;
+  static const _decimalPlaces = 2;
 
   final double? rating;
   final int? reviewCount;
@@ -13,9 +18,9 @@ class RatingBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final value = rating;
-    final valid = value != null && value.isFinite && value >= 0 && value <= 5;
+    final valid = ProductRating.isValid(value);
     final color = _ratingColor(valid ? value : null, tokens);
-    final text = valid ? _formatRating(value) : 'Not rated';
+    final text = valid ? _formatRating(value!) : 'Not rated';
     final count = reviewCount;
     final hasCount = count != null && count >= 0;
     final label = _ratingLabel(
@@ -31,7 +36,10 @@ class RatingBadge extends StatelessWidget {
           decoration: BoxDecoration(
             color: tokens.surface,
             borderRadius: BorderRadius.circular(tokens.smallRadius),
-            border: Border.all(color: color.withValues(alpha: .35)),
+            border: Border.all(
+              color: color.withValues(alpha: _borderOpacity),
+              width: tokens.borderWidth,
+            ),
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(
@@ -46,7 +54,7 @@ class RatingBadge extends StatelessWidget {
                 Icon(
                   valid ? Icons.star_rounded : Icons.star_border_rounded,
                   color: color,
-                  size: 18,
+                  size: _starSize,
                 ),
                 Text(
                   text,
@@ -70,8 +78,8 @@ class RatingBadge extends StatelessWidget {
   /// Selects a color for a validated rating; null represents an unknown rating.
   static Color _ratingColor(double? value, AppTokens tokens) {
     if (value == null) return tokens.onSurfaceDim;
-    if (value >= 4) return tokens.ratingGood;
-    if (value >= 3) return tokens.ratingAverage;
+    if (value >= ProductRating.goodThreshold) return tokens.ratingGood;
+    if (value >= ProductRating.averageThreshold) return tokens.ratingAverage;
     return tokens.ratingPoor;
   }
 
@@ -88,7 +96,7 @@ class RatingBadge extends StatelessWidget {
   }
 
   static String _formatRating(double value) {
-    final formatted = value.toStringAsFixed(2);
+    final formatted = value.toStringAsFixed(_decimalPlaces);
     return formatted.endsWith('0')
         ? formatted.substring(0, formatted.length - 1)
         : formatted;

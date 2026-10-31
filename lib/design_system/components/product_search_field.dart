@@ -19,11 +19,13 @@ class ProductSearchField extends StatefulWidget {
     this.focusNode,
     this.initialValue = '',
     this.enabled = true,
-    this.debounceDuration = const Duration(milliseconds: 300),
+    this.debounceDuration = defaultDebounceDuration,
   }) : assert(
          controller == null || initialValue == '',
          'Provide a controller or a nonempty initialValue, not both.',
        );
+
+  static const defaultDebounceDuration = Duration(milliseconds: 300);
 
   /// Receives debounced user edits, immediate clears, and submissions when
   /// [onSubmitted] is absent. Whitespace and case are preserved.

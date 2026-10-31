@@ -1,3 +1,4 @@
+import '../../../fixtures/sample_product_assets.dart';
 import '../models/category.dart';
 import '../models/product.dart';
 
@@ -7,7 +8,7 @@ final List<Product> sampleProducts = List.unmodifiable([
     id: 1,
     title: 'Red Lipstick',
     reviewCount: 23,
-    thumbnail: 'assets/images/sample_products/red_lipstick.webp',
+    thumbnail: SampleProductAssets.redLipstick,
     category: 'beauty',
     brand: 'Example Beauty',
     description: 'A classic red lipstick with a smooth finish.',
@@ -20,7 +21,7 @@ final List<Product> sampleProducts = List.unmodifiable([
     id: 2,
     title: 'Red Onions',
     reviewCount: 12,
-    thumbnail: 'assets/images/sample_products/red_onions.webp',
+    thumbnail: SampleProductAssets.redOnions,
     category: 'groceries',
     brand: 'Example Market',
     description: 'A bag of fresh onions for everyday cooking.',
@@ -32,7 +33,7 @@ final List<Product> sampleProducts = List.unmodifiable([
     id: 3,
     title: 'Eggs',
     reviewCount: 8,
-    thumbnail: 'assets/images/sample_products/eggs.webp',
+    thumbnail: SampleProductAssets.eggs,
     category: 'groceries',
     brand: 'Example Market',
     description: 'A versatile ingredient for breakfast and baking.',
@@ -44,7 +45,7 @@ final List<Product> sampleProducts = List.unmodifiable([
     id: 4,
     title: 'Wireless Headphones',
     reviewCount: 47,
-    thumbnail: 'assets/images/sample_products/wireless_headphones.webp',
+    thumbnail: SampleProductAssets.wirelessHeadphones,
     category: 'mobile-accessories',
     brand: 'Example Audio',
     description: 'Comfortable wireless headphones for daily listening.',
@@ -57,7 +58,7 @@ final List<Product> sampleProducts = List.unmodifiable([
     id: 5,
     title: 'Desk Lamp',
     reviewCount: 6,
-    thumbnail: 'assets/images/sample_products/desk_lamp.webp',
+    thumbnail: SampleProductAssets.deskLamp,
     category: 'home-decoration',
     brand: 'Example Home',
     description: 'An adjustable lamp for your desk.',

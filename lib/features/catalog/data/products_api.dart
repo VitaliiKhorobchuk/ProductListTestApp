@@ -4,11 +4,15 @@ import 'dart:developer' as developer;
 import 'package:dio/dio.dart';
 
 import '../../../core/catalog_failure.dart';
+import '../../../core/diagnostic_level.dart';
 import '../../../core/request_control.dart';
+import '../../../core/safe_integer.dart';
+import '../models/catalog_pagination.dart';
 import '../models/catalog_query.dart';
 import '../models/category.dart';
 import '../models/product.dart';
 import 'product_parser.dart';
+import 'products_api_config.dart';
 import 'raw_product_page.dart';
 
 /// Fetches one raw API response and maps it through [ProductParser].
@@ -16,13 +20,19 @@ import 'raw_product_page.dart';
 /// The caller owns the shared [Dio] client, its configuration, and its lifetime.
 /// This service changes only per-request options; it never closes the client.
 /// Filtering, product deduplication, multi-page scanning, retries, and the overall
-/// logical-operation deadline belong to the future repository implementation.
+/// logical-operation deadline belong to the repository implementation.
 class ProductsApi {
   ProductsApi(Dio dio, {ProductParser? parser})
     : _dio = dio,
       _parser = parser ?? ProductParser();
 
-  static const _maxSafeInteger = 9007199254740991;
+  static const _successStatusMinimum = 200;
+  static const _redirectStatusMinimum = 300;
+  static const _notFoundStatus = 404;
+
+  static bool _isSuccessfulStatus(int status) =>
+      status >= _successStatusMinimum && status < _redirectStatusMinimum;
+
   final Dio _dio;
   final ProductParser _parser;
 
@@ -34,11 +44,11 @@ class ProductsApi {
   Future<RawProductPage> getProducts({
     required CatalogQuery query,
     int skip = 0,
-    int limit = 20,
+    int limit = CatalogPagination.pageSize,
     CancelToken? cancelToken,
   }) {
-    _requireSafeInteger(skip, 'skip', minimum: 0);
-    _requireSafeInteger(limit, 'limit', minimum: 1);
+    SafeInteger.require(skip, 'skip', minimum: 0);
+    SafeInteger.require(limit, 'limit', minimum: 1);
     final hasSearch = query.text.isNotEmpty;
     final category = query.categorySlug;
     if (category == '.' || category == '..') {
@@ -49,10 +59,10 @@ class ProductsApi {
       );
     }
     final path = hasSearch
-        ? '/products/search'
+        ? ProductsEndpoints.search
         : category != null
-        ? '/products/category/${Uri.encodeComponent(category)}'
-        : '/products';
+        ? ProductsEndpoints.category(category)
+        : ProductsEndpoints.products;
     return _getAndParse(
       path,
       cancelToken: cancelToken,
@@ -72,16 +82,16 @@ class ProductsApi {
   /// Fetches category objects independently from the product list.
   Future<List<Category>> getCategories({CancelToken? cancelToken}) =>
       _getAndParse(
-        '/products/categories',
+        ProductsEndpoints.categories,
         cancelToken: cancelToken,
         parse: _parser.parseCategories,
       );
 
   /// Fetches a product by a positive safe ID and rejects a mismatched response.
   Future<Product> getProduct(int id, {CancelToken? cancelToken}) {
-    _requireSafeInteger(id, 'id', minimum: 1);
+    SafeInteger.require(id, 'id', minimum: 1);
     return _getAndParse(
-      '/products/$id',
+      ProductsEndpoints.product(id),
       cancelToken: cancelToken,
       parse: (decoded) {
         final product = _parser.parseProduct(decoded);
@@ -128,7 +138,7 @@ class ProductsApi {
         'The server returned an invalid HTTP response.',
       );
     }
-    if (status < 200 || status >= 300) throw _statusFailure(status);
+    if (!_isSuccessfulStatus(status)) throw _statusFailure(status);
 
     final body = response.data;
     if (body == null) {
@@ -175,7 +185,7 @@ class ProductsApi {
       case DioExceptionType.badResponse:
       case DioExceptionType.unknown:
         final status = error.response?.statusCode;
-        if (status != null && (status < 200 || status >= 300)) {
+        if (status != null && !_isSuccessfulStatus(status)) {
           return _statusFailure(status);
         }
         // Unknown Dio failures may be transformation/configuration problems,
@@ -184,7 +194,7 @@ class ProductsApi {
         developer.log(
           'The HTTP client could not produce a usable response.',
           name: 'ProductsApi',
-          level: 1000,
+          level: DiagnosticLevel.error,
           stackTrace: error.stackTrace,
         );
         return const CatalogFailure(
@@ -194,7 +204,7 @@ class ProductsApi {
     }
   }
 
-  static CatalogFailure _statusFailure(int status) => status == 404
+  static CatalogFailure _statusFailure(int status) => status == _notFoundStatus
       ? const CatalogFailure(
           CatalogFailureKind.notFound,
           'The requested catalog resource could not be found.',
@@ -206,19 +216,5 @@ class ProductsApi {
 
   static void _throwIfCancelled(CancelToken? token) {
     if (token?.isCancelled ?? false) throw const RequestCancelled();
-  }
-
-  static void _requireSafeInteger(
-    int value,
-    String name, {
-    required int minimum,
-  }) {
-    if (value < minimum || value > _maxSafeInteger) {
-      throw ArgumentError.value(
-        value,
-        name,
-        'Must be a safe integer between $minimum and $_maxSafeInteger.',
-      );
-    }
   }
 }

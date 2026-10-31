@@ -1,8 +1,11 @@
 import 'dart:developer' as developer;
 
 import '../../../core/catalog_failure.dart';
+import '../../../core/diagnostic_level.dart';
 import '../../../core/product_labels.dart';
 import '../../../core/product_pricing.dart';
+import '../../../core/product_rating.dart';
+import '../../../core/safe_integer.dart';
 import '../models/category.dart';
 import '../models/product.dart';
 import 'raw_product_page.dart';
@@ -19,9 +22,6 @@ class ProductParser {
   ProductParser({void Function(String message, int level)? onDiagnostic})
     : _onDiagnostic = onDiagnostic ?? _logDiagnostic;
 
-  // This upper bound gives native Dart and JavaScript the same integer identity
-  // and cursor semantics. Integral doubles such as 1.0 are valid JSON numbers.
-  static const _maxSafeInteger = 9007199254740991;
   final void Function(String message, int level) _onDiagnostic;
 
   /// Parses one product, requiring a positive JavaScript-safe integer ID.
@@ -31,7 +31,7 @@ class ProductParser {
   /// displayed discount. Only absolute HTTP(S) image URLs enter API models.
   Product parseProduct(Object? decoded) {
     final record = _requireObject(decoded, 'The product record is invalid.');
-    final id = _safeInteger(record['id']);
+    final id = SafeInteger.parse(record['id']);
     if (id == null || id == 0) {
       throw _invalid('The product has an invalid ID.');
     }
@@ -41,12 +41,15 @@ class ProductParser {
         ? originalPrice
         : null;
     if (price == null) {
-      _diagnose('Product $id has an invalid or missing price.', level: 1000);
+      _diagnose(
+        'Product $id has an invalid or missing price.',
+        level: DiagnosticLevel.error,
+      );
     }
 
     final discount = _finiteNumber(record['discountPercentage']);
     final rating = _finiteNumber(record['rating']);
-    final stock = _safeInteger(record['stock']);
+    final stock = SafeInteger.parse(record['stock']);
     final thumbnail = _imageUrl(record['thumbnail']);
     if (thumbnail == null) {
       _diagnose('Product $id has an invalid or missing thumbnail.');
@@ -82,7 +85,7 @@ class ProductParser {
       discountPercentage: ProductPricing.isValidDiscount(discount)
           ? discount!
           : 0,
-      rating: rating != null && rating >= 0 && rating <= 5 ? rating : null,
+      rating: ProductRating.isValid(rating) ? rating : null,
       reviewCount: reviews is List ? reviews.length : null,
       stock: stock,
       thumbnail: thumbnail,
@@ -142,14 +145,14 @@ class ProductParser {
     required int expectedSkip,
     required int requestedLimit,
   }) {
-    if (expectedSkip < 0 || expectedSkip > _maxSafeInteger) {
+    if (expectedSkip < 0 || expectedSkip > SafeInteger.maximum) {
       throw ArgumentError.value(
         expectedSkip,
         'expectedSkip',
         'Must be a safe nonnegative integer.',
       );
     }
-    if (requestedLimit <= 0 || requestedLimit > _maxSafeInteger) {
+    if (requestedLimit <= 0 || requestedLimit > SafeInteger.maximum) {
       throw ArgumentError.value(
         requestedLimit,
         'requestedLimit',
@@ -158,9 +161,9 @@ class ProductParser {
     }
     final envelope = _requireObject(decoded, 'The product page is invalid.');
     final rawProducts = envelope['products'];
-    final skip = _safeInteger(envelope['skip']);
-    final limit = _safeInteger(envelope['limit']);
-    final total = _safeInteger(envelope['total']);
+    final skip = SafeInteger.parse(envelope['skip']);
+    final limit = SafeInteger.parse(envelope['limit']);
+    final total = SafeInteger.parse(envelope['total']);
     if (rawProducts is! List ||
         skip == null ||
         limit == null ||
@@ -173,7 +176,7 @@ class ProductParser {
     final rawCount = rawProducts.length;
     if (rawCount > limit ||
         rawCount > requestedLimit ||
-        rawCount > _maxSafeInteger - skip) {
+        rawCount > SafeInteger.maximum - skip) {
       throw _invalid('The product page has inconsistent record counts.');
     }
     if (rawCount == 0) {
@@ -213,17 +216,6 @@ class ProductParser {
     return value;
   }
 
-  static int? _safeInteger(Object? value) {
-    if (value is! num ||
-        !value.isFinite ||
-        value < 0 ||
-        value > _maxSafeInteger ||
-        value != value.truncateToDouble()) {
-      return null;
-    }
-    return value.toInt();
-  }
-
   static double? _finiteNumber(Object? value) =>
       value is num && value.isFinite ? value.toDouble() : null;
 
@@ -254,7 +246,7 @@ class ProductParser {
   static CatalogFailure _invalid(String message) =>
       CatalogFailure(CatalogFailureKind.invalidData, message);
 
-  void _diagnose(String message, {int level = 900}) =>
+  void _diagnose(String message, {int level = DiagnosticLevel.warning}) =>
       _onDiagnostic(message, level);
 
   static void _logDiagnostic(String message, int level) =>

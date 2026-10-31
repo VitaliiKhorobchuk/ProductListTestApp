@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 import 'package:bloc/bloc.dart';
 
 import '../../../../core/catalog_failure.dart';
+import '../../../../core/diagnostic_level.dart';
 import '../../../../core/request_control.dart';
 import '../../data/products_repository.dart';
 import 'product_detail_state.dart';
@@ -110,7 +111,7 @@ class ProductDetailCubit extends Cubit<ProductDetailState> {
     developer.log(
       'Product detail loading failed for product $productId.',
       name: 'ProductDetailCubit',
-      level: 1000,
+      level: DiagnosticLevel.error,
       error: failure,
       stackTrace: stack,
     );

@@ -3,13 +3,13 @@ import 'dart:math' as math;
 
 import '../../../core/catalog_failure.dart';
 import '../../../core/request_control.dart';
+import '../models/catalog_pagination.dart';
 import '../models/catalog_query.dart';
 import '../models/category.dart';
 import '../models/product.dart';
 import '../models/product_page.dart';
 import 'product_id_validation.dart';
 import 'products_repository.dart';
-
 import 'sample_product_data.dart';
 
 enum SampleCatalogScenario { loaded, empty, error }
@@ -19,7 +19,7 @@ class SampleProductsRepository implements ProductsRepository {
   SampleProductsRepository({
     List<Product>? products,
     this.scenario = SampleCatalogScenario.loaded,
-    Duration delay = const Duration(milliseconds: 500),
+    Duration delay = defaultDelay,
   }) : _products = List.unmodifiable(products ?? sampleProducts),
        _delay = delay {
     if (delay.isNegative) throw ArgumentError.value(delay, 'delay');
@@ -41,6 +41,8 @@ class SampleProductsRepository implements ProductsRepository {
     return SampleProductsRepository(scenario: scenario);
   }
 
+  static const defaultDelay = Duration(milliseconds: 500);
+
   final List<Product> _products;
   final Duration _delay;
   final SampleCatalogScenario scenario;
@@ -49,7 +51,7 @@ class SampleProductsRepository implements ProductsRepository {
   Future<ProductPage> getProducts({
     required CatalogQuery query,
     int skip = 0,
-    int limit = 20,
+    int limit = CatalogPagination.pageSize,
     RequestControl? control,
   }) async {
     if (skip < 0 || limit < 1) {
@@ -75,10 +77,7 @@ class SampleProductsRepository implements ProductsRepository {
       control?.throwIfCancelled();
       final end = math.min(cursor + limit, source.length);
       for (final product in source.sublist(cursor, end)) {
-        if (product.title.toLowerCase().contains(text) &&
-            (query.categorySlug == null ||
-                product.category == query.categorySlug) &&
-            seen.add(product.id)) {
+        if (query.matches(product) && seen.add(product.id)) {
           matches.add(product);
         }
       }

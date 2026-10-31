@@ -18,6 +18,9 @@ class ProductImage extends StatefulWidget {
 }
 
 class _ProductImageState extends State<ProductImage> {
+  static const _assetPrefix = 'assets/';
+  static const _loadingStrokeWidth = 2.0;
+  static const _fallbackIconSize = 32.0;
   String? _source;
   bool _warningScheduled = false;
 
@@ -36,7 +39,7 @@ class _ProductImageState extends State<ProductImage> {
   void _updateSource() {
     _warningScheduled = false;
     final input = widget.imageUrl?.trim();
-    if (input != null && input.startsWith('assets/')) {
+    if (input != null && input.startsWith(_assetPrefix)) {
       _source = input;
       return;
     }
@@ -70,7 +73,7 @@ class _ProductImageState extends State<ProductImage> {
       child: source == null
           ? _fallback(context, 'Image unavailable')
           : Image(
-              image: source.startsWith('assets/')
+              image: source.startsWith(_assetPrefix)
                   ? AssetImage(source)
                   : NetworkImage(source),
               width: double.infinity,
@@ -98,7 +101,9 @@ class _ProductImageState extends State<ProductImage> {
       child: Center(
         child: SizedBox.square(
           dimension: context.tokens.spaceXl,
-          child: const CircularProgressIndicator(strokeWidth: 2),
+          child: const CircularProgressIndicator(
+            strokeWidth: _loadingStrokeWidth,
+          ),
         ),
       ),
     );
@@ -110,7 +115,7 @@ class _ProductImageState extends State<ProductImage> {
       child: Center(
         child: Icon(
           Icons.image_not_supported_outlined,
-          size: 32,
+          size: _fallbackIconSize,
           color: context.tokens.onSurface,
         ),
       ),

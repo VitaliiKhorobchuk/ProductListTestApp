@@ -4,14 +4,16 @@ import 'package:dio/dio.dart';
 
 import '../../../core/catalog_failure.dart';
 import '../../../core/request_control.dart';
+import '../../../core/safe_integer.dart';
+import '../models/catalog_pagination.dart';
 import '../models/catalog_query.dart';
 import '../models/category.dart';
 import '../models/product.dart';
 import '../models/product_page.dart';
 import 'product_id_validation.dart';
 import 'products_api.dart';
+import 'products_api_config.dart';
 import 'products_repository.dart';
-
 import 'raw_product_page.dart';
 
 /// Converts raw API pages into complete, filtered catalog batches.
@@ -24,8 +26,8 @@ import 'raw_product_page.dart';
 class RemoteProductsRepository implements ProductsRepository {
   RemoteProductsRepository(
     ProductsApi api, {
-    Duration operationTimeout = const Duration(seconds: 30),
-    int rawPageSize = 20,
+    Duration operationTimeout = ProductsApiConfig.operationTimeout,
+    int rawPageSize = CatalogPagination.pageSize,
   }) : _api = api,
        _operationTimeout = operationTimeout,
        _rawPageSize = rawPageSize {
@@ -36,10 +38,9 @@ class RemoteProductsRepository implements ProductsRepository {
         'Must be positive.',
       );
     }
-    _requireSafeInteger(rawPageSize, 'rawPageSize', minimum: 1);
+    SafeInteger.require(rawPageSize, 'rawPageSize', minimum: 1);
   }
 
-  static const _maxSafeInteger = 9007199254740991;
   final ProductsApi _api;
   final Duration _operationTimeout;
   final int _rawPageSize;
@@ -55,15 +56,14 @@ class RemoteProductsRepository implements ProductsRepository {
   Future<ProductPage> getProducts({
     required CatalogQuery query,
     int skip = 0,
-    int limit = 20,
+    int limit = CatalogPagination.pageSize,
     RequestControl? control,
   }) {
-    _requireSafeInteger(skip, 'skip', minimum: 0);
-    _requireSafeInteger(limit, 'limit', minimum: 1);
+    SafeInteger.require(skip, 'skip', minimum: 0);
+    SafeInteger.require(limit, 'limit', minimum: 1);
     return _run(control, (operation) async {
       final products = <Product>[];
       final seenIds = <int>{};
-      final text = query.normalizedText;
       var cursor = skip;
       int? remoteTotal;
       var hasMore = true;
@@ -85,10 +85,7 @@ class RemoteProductsRepository implements ProductsRepository {
         remoteTotal = page.total;
         for (final product in page.products) {
           operation.check();
-          if (product.title.toLowerCase().contains(text) &&
-              (query.categorySlug == null ||
-                  product.category == query.categorySlug) &&
-              seenIds.add(product.id)) {
+          if (query.matches(product) && seenIds.add(product.id)) {
             products.add(product);
           }
         }
@@ -151,15 +148,15 @@ class RemoteProductsRepository implements ProductsRepository {
   void _validatePage(RawProductPage page, {required int expectedSkip}) {
     // The parser already enforces these invariants. Checking the boundary here
     // also guards future API implementations from trapping a scan in a loop.
-    if (!_isSafeNonnegative(page.skip) ||
-        !_isSafeNonnegative(page.limit) ||
-        !_isSafeNonnegative(page.total) ||
-        !_isSafeNonnegative(page.rawCount) ||
+    if (!SafeInteger.isInRange(page.skip) ||
+        !SafeInteger.isInRange(page.limit) ||
+        !SafeInteger.isInRange(page.total) ||
+        !SafeInteger.isInRange(page.rawCount) ||
         page.skip != expectedSkip ||
         page.rawCount > page.limit ||
         page.rawCount > _rawPageSize ||
         page.products.length > page.rawCount ||
-        page.rawCount > _maxSafeInteger - page.skip) {
+        page.rawCount > SafeInteger.maximum - page.skip) {
       throw _invalid('The catalog returned inconsistent pagination data.');
     }
     if (page.rawCount == 0) {
@@ -173,23 +170,6 @@ class RemoteProductsRepository implements ProductsRepository {
         page.nextSkip <= page.skip ||
         page.products.isEmpty) {
       throw _invalid('The catalog returned an unusable product page.');
-    }
-  }
-
-  static bool _isSafeNonnegative(int value) =>
-      value >= 0 && value <= _maxSafeInteger;
-
-  static void _requireSafeInteger(
-    int value,
-    String name, {
-    required int minimum,
-  }) {
-    if (value < minimum || value > _maxSafeInteger) {
-      throw ArgumentError.value(
-        value,
-        name,
-        'Must be a safe integer between $minimum and $_maxSafeInteger.',
-      );
     }
   }
 

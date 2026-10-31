@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../app/theme/theme_cubit.dart';
 import '../app/catalog_navigation.dart';
+import '../app/theme/theme_cubit.dart';
 
 abstract final class ShowcaseNavigation {
   static const path = '/debug/components';
   static const indexRoute = 'debug-components';
   static const detailRoute = 'debug-component';
+  static const componentIdParameter = 'componentId';
+  static const detailPath = ':$componentIdParameter';
 }
 
 class ShowcaseAppBar extends StatelessWidget implements PreferredSizeWidget {

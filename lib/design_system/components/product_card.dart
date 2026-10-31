@@ -87,7 +87,10 @@ class ProductCard extends StatelessWidget {
       shape: selected
           ? RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(tokens.radius),
-              side: BorderSide(color: tokens.primary, width: 2),
+              side: BorderSide(
+                color: tokens.primary,
+                width: tokens.emphasizedBorderWidth,
+              ),
             )
           : null,
       child: onTap != null || selected
@@ -112,6 +115,9 @@ class _ProductContent extends StatelessWidget {
     required this.reviewCount,
   });
 
+  static const _metadataMaxLines = 2;
+  static const _titleMaxLines = 3;
+
   final String title;
   final String category;
   final String? brand;
@@ -132,14 +138,14 @@ class _ProductContent extends StatelessWidget {
       children: [
         Text(
           displayCategory,
-          maxLines: 2,
+          maxLines: _metadataMaxLines,
           overflow: TextOverflow.ellipsis,
           style: textTheme.labelSmall?.copyWith(color: tokens.onSurfaceDim),
         ),
         SizedBox(height: tokens.spaceXs),
         Text(
           title,
-          maxLines: 3,
+          maxLines: _titleMaxLines,
           overflow: TextOverflow.ellipsis,
           style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
@@ -147,7 +153,7 @@ class _ProductContent extends StatelessWidget {
           SizedBox(height: tokens.spaceXs),
           Text(
             displayBrand,
-            maxLines: 2,
+            maxLines: _metadataMaxLines,
             overflow: TextOverflow.ellipsis,
             style: textTheme.bodySmall?.copyWith(color: tokens.onSurfaceDim),
           ),

@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import 'product.dart';
+
 class CatalogQuery extends Equatable {
   CatalogQuery({String text = '', String? categorySlug})
     : text = text.trim(),
@@ -11,6 +13,11 @@ class CatalogQuery extends Equatable {
   final String? categorySlug;
 
   String get normalizedText => text.toLowerCase();
+
+  /// Final local match after any broader server/sample-source search.
+  bool matches(Product product) =>
+      product.title.toLowerCase().contains(normalizedText) &&
+      (categorySlug == null || product.category == categorySlug);
 
   @override
   List<Object?> get props => [normalizedText, categorySlug];

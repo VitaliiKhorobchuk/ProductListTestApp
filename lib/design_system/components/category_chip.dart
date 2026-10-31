@@ -17,6 +17,8 @@ class CategoryChip extends StatelessWidget {
     this.onSelected,
   });
 
+  static const _fallbackFontSize = 14.0;
+
   final String label;
   final bool selected;
   final ValueChanged<bool>? onSelected;
@@ -30,9 +32,9 @@ class CategoryChip extends StatelessWidget {
         ? theme.colorScheme.onPrimary
         : tokens.onSurface;
     final textStyle =
-        (theme.textTheme.labelLarge ?? const TextStyle(fontSize: 14)).copyWith(
-          color: foreground,
-        );
+        (theme.textTheme.labelLarge ??
+                const TextStyle(fontSize: _fallbackFontSize))
+            .copyWith(color: foreground);
     final padding = EdgeInsets.symmetric(
       horizontal: tokens.spaceSm,
       vertical: tokens.spaceXs,
@@ -67,16 +69,20 @@ class CategoryChip extends StatelessWidget {
           ),
           side: WidgetStateBorderSide.resolveWith((states) {
             if (states.contains(WidgetState.disabled)) {
-              return BorderSide(color: tokens.border);
+              return BorderSide(
+                color: tokens.border,
+                width: tokens.borderWidth,
+              );
             }
             if (states.contains(WidgetState.focused)) {
               return BorderSide(
                 color: selected ? theme.colorScheme.onPrimary : tokens.primary,
-                width: 2,
+                width: tokens.emphasizedBorderWidth,
               );
             }
             return BorderSide(
               color: selected ? tokens.primary : tokens.onSurfaceDim,
+              width: tokens.borderWidth,
             );
           }),
           padding: padding,

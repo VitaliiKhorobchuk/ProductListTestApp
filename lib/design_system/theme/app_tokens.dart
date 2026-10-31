@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 class AppTokens extends ThemeExtension<AppTokens> {
   const AppTokens({
     required this.primary,
+    required this.onAccent,
     required this.surface,
     required this.surfaceVariant,
     required this.onSurface,
@@ -15,9 +16,12 @@ class AppTokens extends ThemeExtension<AppTokens> {
     this.radius = 12,
     this.smallRadius = 8,
     this.spacing = 8,
+    this.borderWidth = 1,
+    this.emphasizedBorderWidth = 2,
   });
 
   final Color primary;
+  final Color onAccent;
   final Color surface;
   final Color surfaceVariant;
   final Color onSurface;
@@ -29,6 +33,14 @@ class AppTokens extends ThemeExtension<AppTokens> {
   final double radius;
   final double smallRadius;
   final double spacing;
+  final double borderWidth;
+  final double emphasizedBorderWidth;
+
+  static const _focusOpacity = .18;
+  static const _hoverOpacity = .08;
+
+  Color get focusOverlay => primary.withValues(alpha: _focusOpacity);
+  Color get hoverOverlay => primary.withValues(alpha: _hoverOpacity);
 
   double get spaceXs => spacing / 2;
   double get spaceSm => spacing;
@@ -38,6 +50,7 @@ class AppTokens extends ThemeExtension<AppTokens> {
 
   static const light = AppTokens(
     primary: Color(0xFF2563EB),
+    onAccent: Color(0xFFFFFFFF),
     surface: Color(0xFFFFFFFF),
     surfaceVariant: Color(0xFFF1F5F9),
     onSurface: Color(0xFF0F172A),
@@ -50,6 +63,7 @@ class AppTokens extends ThemeExtension<AppTokens> {
 
   static const dark = AppTokens(
     primary: Color(0xFF3B82F6),
+    onAccent: Color(0xFF0F172A),
     surface: Color(0xFF1E1E2E),
     surfaceVariant: Color(0xFF2A2A3C),
     onSurface: Color(0xFFE2E8F0),
@@ -63,6 +77,7 @@ class AppTokens extends ThemeExtension<AppTokens> {
   @override
   AppTokens copyWith({
     Color? primary,
+    Color? onAccent,
     Color? surface,
     Color? surfaceVariant,
     Color? onSurface,
@@ -74,9 +89,12 @@ class AppTokens extends ThemeExtension<AppTokens> {
     double? radius,
     double? smallRadius,
     double? spacing,
+    double? borderWidth,
+    double? emphasizedBorderWidth,
   }) {
     return AppTokens(
       primary: primary ?? this.primary,
+      onAccent: onAccent ?? this.onAccent,
       surface: surface ?? this.surface,
       surfaceVariant: surfaceVariant ?? this.surfaceVariant,
       onSurface: onSurface ?? this.onSurface,
@@ -88,6 +106,9 @@ class AppTokens extends ThemeExtension<AppTokens> {
       radius: radius ?? this.radius,
       smallRadius: smallRadius ?? this.smallRadius,
       spacing: spacing ?? this.spacing,
+      borderWidth: borderWidth ?? this.borderWidth,
+      emphasizedBorderWidth:
+          emphasizedBorderWidth ?? this.emphasizedBorderWidth,
     );
   }
 
@@ -96,6 +117,7 @@ class AppTokens extends ThemeExtension<AppTokens> {
     if (other == null) return this;
     return AppTokens(
       primary: Color.lerp(primary, other.primary, t)!,
+      onAccent: Color.lerp(onAccent, other.onAccent, t)!,
       surface: Color.lerp(surface, other.surface, t)!,
       surfaceVariant: Color.lerp(surfaceVariant, other.surfaceVariant, t)!,
       onSurface: Color.lerp(onSurface, other.onSurface, t)!,
@@ -107,6 +129,10 @@ class AppTokens extends ThemeExtension<AppTokens> {
       radius: radius + (other.radius - radius) * t,
       smallRadius: smallRadius + (other.smallRadius - smallRadius) * t,
       spacing: spacing + (other.spacing - spacing) * t,
+      borderWidth: borderWidth + (other.borderWidth - borderWidth) * t,
+      emphasizedBorderWidth:
+          emphasizedBorderWidth +
+          (other.emphasizedBorderWidth - emphasizedBorderWidth) * t,
     );
   }
 }

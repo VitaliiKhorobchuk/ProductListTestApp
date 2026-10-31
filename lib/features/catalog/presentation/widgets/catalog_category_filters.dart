@@ -13,6 +13,12 @@ import '../cubit/categories_cubit.dart';
 class CatalogCategoryFilters extends StatelessWidget {
   const CatalogCategoryFilters({super.key, required this.selectedSlug});
 
+  static const _minimumChipSpacingUnits = 15;
+  static const _maximumChipSpacingUnits = 30;
+  static const _maximumChipWidthFraction = .75;
+  static const _loadingIndicatorSize = 16.0;
+  static const _loadingStrokeWidth = 2.0;
+
   final String? selectedSlug;
 
   @override
@@ -42,8 +48,11 @@ class CatalogCategoryFilters extends StatelessWidget {
                 // Bounded chip labels can wrap at large text sizes instead of
                 // imposing a fixed row height or overflowing narrow viewports.
                 final maximumChipWidth = math.max(
-                  tokens.spacing * 15,
-                  math.min(tokens.spacing * 30, constraints.maxWidth * .75),
+                  tokens.spacing * _minimumChipSpacingUnits,
+                  math.min(
+                    tokens.spacing * _maximumChipSpacingUnits,
+                    constraints.maxWidth * _maximumChipWidthFraction,
+                  ),
                 );
                 Widget chip({required String label, required String? slug}) =>
                     Padding(
@@ -77,8 +86,10 @@ class CatalogCategoryFilters extends StatelessWidget {
                 child: Row(
                   children: [
                     const SizedBox.square(
-                      dimension: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
+                      dimension: _loadingIndicatorSize,
+                      child: CircularProgressIndicator(
+                        strokeWidth: _loadingStrokeWidth,
+                      ),
                     ),
                     SizedBox(width: tokens.spaceSm),
                     Expanded(

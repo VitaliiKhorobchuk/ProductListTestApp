@@ -18,6 +18,9 @@ class StateMessage extends StatelessWidget {
          'Provide both actionLabel and onAction, or neither.',
        );
 
+  static const _maximumContentWidth = 440.0;
+  static const _iconSize = 48.0;
+
   final String title;
   final String message;
   final IconData icon;
@@ -53,13 +56,15 @@ class StateMessage extends StatelessWidget {
               constraints: BoxConstraints(minHeight: minimumHeight),
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 440),
+                  constraints: const BoxConstraints(
+                    maxWidth: _maximumContentWidth,
+                  ),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       ExcludeSemantics(
-                        child: Icon(icon, size: 48, color: iconColor),
+                        child: Icon(icon, size: _iconSize, color: iconColor),
                       ),
                       SizedBox(height: tokens.spaceLg),
                       Semantics(

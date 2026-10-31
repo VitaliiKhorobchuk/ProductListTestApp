@@ -4,6 +4,7 @@ import 'package:bloc/bloc.dart';
 
 import '../../../../core/catalog_failure.dart';
 import '../../../../core/request_control.dart';
+import '../../../../core/safe_integer.dart';
 import '../../data/products_repository.dart';
 import '../../models/catalog_query.dart';
 import '../../models/product.dart';
@@ -21,7 +22,6 @@ export 'catalog_state.dart';
 class CatalogCubit extends Cubit<CatalogState> {
   CatalogCubit(this._repository) : super(CatalogState());
 
-  static const _maxSafeInteger = 9007199254740991;
   final ProductsRepository _repository;
   int _generation = 0;
   RequestControl? _activeRequest;
@@ -179,10 +179,8 @@ class CatalogCubit extends Cubit<CatalogState> {
     final nextSkip = page.nextSkip;
     final total = page.remoteTotal;
     if (nextSkip < expectedSkip ||
-        nextSkip < 0 ||
-        nextSkip > _maxSafeInteger ||
-        total < 0 ||
-        total > _maxSafeInteger ||
+        !SafeInteger.isInRange(nextSkip) ||
+        !SafeInteger.isInRange(total) ||
         page.hasMore != (nextSkip < total) ||
         (page.hasMore && nextSkip == expectedSkip) ||
         (nextSkip > total && nextSkip != expectedSkip) ||

@@ -232,16 +232,26 @@ The showcase now contains eight components and 73 named examples, including 11 P
 
 - Reconsider read-only search input only when a concrete flow needs a visible, selectable query that cannot be edited (for example, a locked saved search). It is intentionally absent from the current component API and showcase; enabled/disabled behavior remains supported.
 
-## Deferred final cleanup review
+## Final cleanup progress
 
-Before final verification/handoff, review the implemented code for magic numbers and hardcoded user-facing strings. This work is intentionally deferred; no constants/localization refactor is part of the current component increment.
+### Constants and shared rules (implemented)
 
-- Extract meaningful layout dimensions, breakpoints, text-scale limits, icon sizes, opacity values, rating thresholds, percentage/formatting rules, pagination defaults, and sample delays into named constants. Group them by responsibility (theme, component layout, product rules, catalog configuration) rather than creating one unrelated global constants file.
-- Keep existing theme tokens as the design-value source of truth. Distinguish configurable rules from obvious loop/index arithmetic and sample product data.
+- SafeInteger owns the shared native/web integer ceiling, range checks and integral JSON-number parsing. The parser, API, repository and catalog page checks reuse it; each boundary retains its existing failure type/message. Product-ID domain validation remains in product_id_validation.dart, with no new detail-UI/Cubit ID check.
+- CatalogPagination owns the default batch size. ProductsApiConfig and ProductsEndpoints own request timeouts, the overall operation budget, headers and HTTP paths. Transport paths remain separate from application routes.
+- CatalogQuery.matches owns final title/category matching for remote and sample repositories; the sample source still deliberately simulates broader description search before applying that predicate.
+- ProductRating owns rating bounds and raw-value color thresholds; DiagnosticLevel names the existing logging severities. Pricing and descriptive fallback helpers remain reused.
+- AppTokens now owns accent foreground and normal/emphasized border widths plus shared focus/hover overlays. These preserve the existing colors, dimensions and opacity values, including copyWith/lerp support for configurable tokens.
+- Remaining meaningful icon sizes, text line limits, component/preview dimensions, debounce and sample-delay defaults have contextual names. Bundled sample-image paths live in fixtures/sample_product_assets.dart and are reused by sample data and debug previews.
+- Removed replaced private validation helpers and the repeated matching predicate. Full analysis reports no unused declarations. Public fixture factories/injection seams remain intentional; simple index arithmetic, explicit sample values and API schema keys stay local.
+
+Formatting, full analysis, release web and Android debug builds passed. Print-only external inspection covered numeric/rating boundaries, parser fallbacks, encoded endpoints, defaults, sample filtering and live20+20 pagination/Red-Groceries matching. Browser smoke checks and Pixel7Pro/Android17 manual launch, native typing/Enter, combined red/Beauty filtering, detail, Android Back and light/dark appearance were checked. External QA notes distinguish these observations from deferred automated coverage. No tests, dependencies, README, staging or commits changed.
+
+### Localization (next checkpoint)
+
 - Move app-owned visible text, tooltips, fallback/error messages, accessibility labels, plural forms, and number/currency presentation into localization resources using Flutter's localization workflow. Establish English resources first; additional translations require an explicit language decision.
 - Keep models/repositories/Cubits independent of Flutter localization. Map typed failure kinds to localized messages in presentation; do not expose diagnostic messages directly as UI text.
-- Keep route identifiers, asset paths, developer diagnostics, and API/sample product content separate from translatable interface copy. Group technical constants where their context warrants it.
-- Review remaining literals after extraction, update architecture/AI documentation, and perform the final-stage formatting, analysis, builds, manual checks, and required automated regression coverage.
+- Keep route identifiers, asset paths, developer diagnostics, and API/sample product content separate from translatable interface copy.
+- Recheck remaining literals, update documentation, and continue final-stage automated tests, builds, accessibility/layout and device/performance checks.
 
 ## AI-assisted development workflow and final documentation
 

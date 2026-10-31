@@ -7,7 +7,6 @@ abstract final class AppTheme {
   static final ThemeData dark = _build(AppTokens.dark, Brightness.dark);
 
   static ThemeData _build(AppTokens tokens, Brightness brightness) {
-    final dark = brightness == Brightness.dark;
     final scheme =
         ColorScheme.fromSeed(
           seedColor: tokens.primary,
@@ -15,7 +14,7 @@ abstract final class AppTheme {
         ).copyWith(
           primary: tokens.primary,
           // White text on the specified dark-blue accent is too low in contrast.
-          onPrimary: dark ? const Color(0xFF0F172A) : Colors.white,
+          onPrimary: tokens.onAccent,
           surface: tokens.surface,
           onSurface: tokens.onSurface,
           onSurfaceVariant: tokens.onSurface,
@@ -27,7 +26,7 @@ abstract final class AppTheme {
           outline: tokens.onSurfaceDim,
           outlineVariant: tokens.border,
           error: tokens.ratingPoor,
-          onError: dark ? const Color(0xFF0F172A) : Colors.white,
+          onError: tokens.onAccent,
         );
     final base = ThemeData(
       useMaterial3: true,
@@ -62,17 +61,22 @@ abstract final class AppTheme {
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         margin: EdgeInsets.zero,
-        shape: rounded.copyWith(side: BorderSide(color: tokens.border)),
+        shape: rounded.copyWith(
+          side: BorderSide(color: tokens.border, width: tokens.borderWidth),
+        ),
       ),
       iconTheme: IconThemeData(color: tokens.onSurfaceDim),
       iconButtonTheme: IconButtonThemeData(
         style: IconButton.styleFrom(
           foregroundColor: tokens.onSurface,
-          focusColor: tokens.primary.withValues(alpha: .18),
-          hoverColor: tokens.primary.withValues(alpha: .08),
+          focusColor: tokens.focusOverlay,
+          hoverColor: tokens.hoverOverlay,
         ),
       ),
-      dividerTheme: DividerThemeData(color: tokens.border, thickness: 1),
+      dividerTheme: DividerThemeData(
+        color: tokens.border,
+        thickness: tokens.borderWidth,
+      ),
       progressIndicatorTheme: ProgressIndicatorThemeData(color: tokens.primary),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
@@ -101,19 +105,28 @@ abstract final class AppTheme {
         hintStyle: TextStyle(color: tokens.onSurfaceDim),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(tokens.radius),
-          borderSide: BorderSide(color: tokens.onSurfaceDim),
+          borderSide: BorderSide(
+            color: tokens.onSurfaceDim,
+            width: tokens.borderWidth,
+          ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(tokens.radius),
-          borderSide: BorderSide(color: tokens.onSurfaceDim),
+          borderSide: BorderSide(
+            color: tokens.onSurfaceDim,
+            width: tokens.borderWidth,
+          ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(tokens.radius),
-          borderSide: BorderSide(color: tokens.primary, width: 2),
+          borderSide: BorderSide(
+            color: tokens.primary,
+            width: tokens.emphasizedBorderWidth,
+          ),
         ),
       ),
-      focusColor: tokens.primary.withValues(alpha: .18),
-      hoverColor: tokens.primary.withValues(alpha: .08),
+      focusColor: tokens.focusOverlay,
+      hoverColor: tokens.hoverOverlay,
     );
   }
 }

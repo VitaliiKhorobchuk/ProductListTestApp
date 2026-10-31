@@ -19,6 +19,8 @@ class ShowcaseDetailScreen extends StatefulWidget {
 }
 
 class _ShowcaseDetailScreenState extends State<ShowcaseDetailScreen> {
+  static const _settingsControlWidth = 220.0;
+
   ShowcaseWidth _width = ShowcaseWidth.available;
   ShowcaseTextSize _textSize = ShowcaseTextSize.system;
 
@@ -70,7 +72,7 @@ class _ShowcaseDetailScreenState extends State<ShowcaseDetailScreen> {
           runSpacing: tokens.spaceSm,
           children: [
             SizedBox(
-              width: 220,
+              width: _settingsControlWidth,
               child: DropdownButton<ShowcaseWidth>(
                 value: _width,
                 isExpanded: true,
@@ -85,7 +87,7 @@ class _ShowcaseDetailScreenState extends State<ShowcaseDetailScreen> {
               ),
             ),
             SizedBox(
-              width: 220,
+              width: _settingsControlWidth,
               child: DropdownButton<ShowcaseTextSize>(
                 value: _textSize,
                 isExpanded: true,

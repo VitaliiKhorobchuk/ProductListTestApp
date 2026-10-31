@@ -7,14 +7,21 @@ import '../../design_system/components/product_image.dart';
 import '../../design_system/components/rating_badge.dart';
 import '../../design_system/components/state_message.dart';
 import '../../design_system/theme/app_tokens.dart';
+import '../../fixtures/sample_product_assets.dart';
 import 'category_chip_examples.dart';
 import 'loading_image_preview.dart';
-import 'showcase_models.dart';
 import 'search_field_examples.dart';
+import 'showcase_models.dart';
 
-const _sampleImage = 'assets/images/sample_products/red_lipstick.webp';
+const _sampleImage = SampleProductAssets.redLipstick;
 const _missingImage =
     'assets/images/sample_products/missing_preview_image.webp';
+
+abstract final class _PreviewHeight {
+  static const image = 160.0;
+  static const message = 280.0;
+  static const shortMessage = 200.0;
+}
 
 final showcaseComponents = <ShowcaseComponent>[
   ShowcaseComponent(
@@ -57,7 +64,7 @@ final showcaseComponents = <ShowcaseComponent>[
         title: 'Loaded image',
         description:
             'A bundled product image; no external image service is used.',
-        height: 160,
+        height: _PreviewHeight.image,
         builder: (_) => const ProductImage(
           imageUrl: _sampleImage,
           semanticLabel: 'Red lipstick',
@@ -66,7 +73,7 @@ final showcaseComponents = <ShowcaseComponent>[
       ShowcaseExample(
         title: 'Loading image',
         description: 'The debug asset bundle holds the real image pending until this preview is removed.',
-        height: 160,
+        height: _PreviewHeight.image,
         builder: (_) => const LoadingImagePreview(),
       ),
       for (final source in <String?>[
@@ -78,7 +85,7 @@ final showcaseComponents = <ShowcaseComponent>[
         ShowcaseExample(
           title: _imageStateTitle(source),
           description: 'The component keeps its image slot and shows its unavailable fallback.',
-          height: 160,
+          height: _PreviewHeight.image,
           builder: (_) => ProductImage(
             imageUrl: source,
             semanticLabel: 'Unavailable sample product',
@@ -113,7 +120,7 @@ final showcaseComponents = <ShowcaseComponent>[
             title:
                 '${inline ? 'Inline' : 'Full-area'} shared layout · ${hasAction ? 'with action' : 'without action'}',
             description: 'Custom informational icon, copy and action.',
-            height: inline ? null : 280,
+            height: inline ? null : _PreviewHeight.message,
             builder: (context) => StateMessage(
               title: 'Information',
               message: 'This neutral layout is reused by the two message components.',
@@ -321,7 +328,7 @@ List<ShowcaseExample> _errorExamples() => [
             '${inline ? 'Inline' : 'Full-area'} · ${action ? 'with action' : 'without action'}',
         description:
             'The caller supplies the message and optional recovery action.',
-        height: inline ? null : 280,
+        height: inline ? null : _PreviewHeight.message,
         builder: (context) => ErrorState(
           title: 'Could not load products',
           message: 'Check your connection and try again.',
@@ -335,7 +342,7 @@ List<ShowcaseExample> _errorExamples() => [
   ShowcaseExample(
     title: 'Long error and custom icon',
     description: 'Scroll inside this short area when text is enlarged.',
-    height: 200,
+    height: _PreviewHeight.shortMessage,
     builder: (context) => ErrorState(
       title: 'The product collection could not be loaded right now',
       message: 'This deliberately longer message demonstrates wrapping and scrolling in narrow or short layouts. Your current selection is safe; you can try again when ready.',
@@ -353,7 +360,7 @@ List<ShowcaseExample> _emptyExamples() => [
         title:
             '${inline ? 'Inline' : 'Full-area'} · ${action ? 'with action' : 'without action'}',
         description: 'Empty content can optionally offer a useful next step.',
-        height: inline ? null : 280,
+        height: inline ? null : _PreviewHeight.message,
         builder: (context) => EmptyState(
           title: action ? 'No matching products' : 'No products yet',
           message: action
@@ -369,7 +376,7 @@ List<ShowcaseExample> _emptyExamples() => [
   ShowcaseExample(
     title: 'Search empty state and long copy',
     description: 'Custom icon, long text and a short preview area.',
-    height: 200,
+    height: _PreviewHeight.shortMessage,
     builder: (context) => EmptyState(
       title: 'No products match the current search and category',
       message: 'Try a different search phrase, choose another category, or clear the filters to discover more products in the collection.',

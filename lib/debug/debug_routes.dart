@@ -14,10 +14,12 @@ List<RouteBase> createDebugRoutes() {
       builder: (context, state) => const ShowcaseIndexScreen(),
       routes: [
         GoRoute(
-          path: ':componentId',
+          path: ShowcaseNavigation.detailPath,
           name: ShowcaseNavigation.detailRoute,
           builder: (context, state) => ShowcaseDetailScreen(
-            componentId: state.pathParameters['componentId'] ?? '',
+            componentId:
+                state.pathParameters[ShowcaseNavigation.componentIdParameter] ??
+                '',
           ),
         ),
       ],
