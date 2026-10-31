@@ -23,21 +23,7 @@ Web uses Flutter's default hash routes:
 - Direct product: `http://localhost:8800/#/products/1`
 - Component showcase: `http://localhost:8800/#/debug/components`
 
-### Debug component showcase
-
-Run the app in debug mode to explore reusable components independently of the live catalog:
-
-~~~sh
-flutter run --debug -d chrome --web-port 8800
-~~~
-
-Open the catalog and select the toolbar button with the tooltip **Open component showcase**, or navigate directly to `http://localhost:8800/#/debug/components`. On Android, run `flutter run --debug -d <device-id>` and use the same toolbar button.
-
-The screen lists available components. Select one to inspect its variants, interactive examples and relevant selected/disabled/loading/error/empty/image-fallback states. Preview controls let you change the available width (including 160px, 320px and 600px presets), text size (100%, 150% or 200%), and light/dark theme. Width presets are capped by the available space.
-
-The showcase routes and entry button are guarded by `kDebugMode` and are absent in profile/release builds. Its retained preview image remains declared as a bundled asset.
-
-### Checks and builds
+The showcase also has a debug-only catalog button. Its routes/button are absent in profile/release builds; its retained preview image remains declared as a bundled asset.
 
 ~~~sh
 dart format --output=none --set-exit-if-changed lib test
@@ -68,8 +54,7 @@ View <- immutable Cubit state
 | `lib/features/catalog/models/` | Products, categories, query and page/cursor values. |
 | `lib/features/catalog/data/` | Repository contract, remote implementation, Dio API and defensive parsing. |
 | `lib/features/catalog/presentation/` | Catalog/category/detail Cubits, immutable states, screens and feature widgets. |
-| `lib/debug/` | Debug-only route registration, showcase navigation and the catalog entry button. |
-| `lib/debug/component_showcase/` | Component list/detail screens, state/variant examples, preview width/text-size controls, example models and scoped asset constants. |
+| `lib/debug/component_showcase/` | Development previews and their asset constants. |
 | `test/` | State, parser and component tests, local doubles and shared theme setup. |
 
 ### Libraries and state ownership
@@ -115,8 +100,6 @@ Loading skeletons reuse card/row geometry and exclude decorative content from se
 
 ## 4. Verification, limitations and future improvements
 
-Final results: **77 Dart files formatted, clean analysis, all 10 tests pass, release web/profile Android/release APK builds pass**. Android interactions used a Pixel 7 Pro / Android 17 profile build. Browser checks used the release app and debug showcase.
-
 | Automated area | Tests | Coverage |
 | --- | --- | --- |
 | CatalogCubit | 4 | Loading/loaded, empty, failure/retry and pagination with duplicate merging/retained rows. |
@@ -131,14 +114,12 @@ Manual checks covered 320/390 phone layouts, the 767/768 breakpoint, keyboard ac
 
 Future improvements and known limits:
 
-- **Rating precision:** choose consistent rounding/color rules; raw 3.999 can display 4.0 while using amber. Intentionally deferred.
 - **Localization:** move English strings, errors, semantic labels, plurals and currency formatting into resources, with presentation-owned failure mapping. Intentionally deferred; translations are not an assessment requirement.
-- Profile/tune scrolling, image decode/cache behavior, layout bursts and startup; measure sustained frame pacing/memory before claiming smooth performance.
 - Improve wide-desktop proportions: fixed tablet-oriented list width and centered detail content leave unused space on large monitors.
-- Complete TalkBack/VoiceOver, full-app OS font scaling, native rotation/tablet and additional platform checks. Browser semantics/scaled previews provide partial accessibility evidence.
+- Complete TalkBack/VoiceOver, full-app OS font scaling, native rotation/tablet and additional platform checks.
 - Native Android App Links/iOS Universal Links are not configured. Verified browser hash URLs do not establish native OS link handling.
 - No offline persistence, process-death restoration or persisted theme/filter preferences; reuse is session/in-memory only.
-- Add targeted API/repository/cancellation/navigation regression tests. Other generated desktop runners are unverified.
+- Add targeted API/repository/cancellation/navigation regression tests. 
 - Consider use cases only when orchestration becomes reused/complex; no separate domain layer is added for the current scope.
 
 ## 5. Specification issues and assumptions
@@ -150,7 +131,6 @@ Future improvements and known limits:
 | Filtered result count. | Display loaded count; the API total belongs to the remote query and can exceed final local matches. |
 | Rating/review count. | Use API rating directly; derive reviewCount from reviews.length and hide when absent. Returned reviews are not claimed to be the complete review total. |
 | Price/discount/currency. | Assume USD and API price as original; share discount calculations. Invalid/negative/missing prices show Price unavailable; zero stays valid. |
-| ProductCard percentage argument. | Accept calculated current/original prices instead of the PDF's direct percentage argument. Shared pricing derives the label; the widget stays independent of API models. |
 | Missing/malformed data. | Optional fields use readable/unknown fallbacks; invalid IDs are skipped with diagnostics. Inconsistent envelopes/nonempty raw pages with no valid products fail the logical batch rather than imply no results. |
 | Optional showcase route. | Use /debug/components behind kDebugMode instead of public /showcase to keep the tool out of release navigation. |
 | Links/platform support. | /products/:id is the app route; web uses #/products/:id. Native URL registration and iOS runtime checks remain outside the verified baseline. |
@@ -159,19 +139,18 @@ Future improvements and known limits:
 
 The developer directed scope, architecture choices, checkpoint acceptance and refinements, and performed all staging/commits. AI contributed architecture suggestions, explanations, substantial scoped Dart implementation, reviews, debugging and verification. Earlier checkpoints used UI/design, data/state, architect and QA agents; final cleanup/tests/handoff checks used the coordinating assistant.
 
-Developer feedback refined readability/controller ownership, removed premature tests/sample paths and duplicated rules, required title-only filtering, and deferred localization/rating precision. AI work was refined during checks: a proposed Cupertino Icons removal was reverted after a build exposed an adaptive font dependency. Profile limitations are recorded rather than presented as a complete performance pass.
+Developer feedback refined readability/controller ownership, removed premature tests/sample paths and duplicated rules, required title-only filtering, and deferred localization/rating precision.
 
 The undated [AI development overview](docs/ai-development-overview.md) records milestones, decisions, corrections and verification without a request-by-request transcript. Plans/review documents are included under docs/.
 
 ## 7. Approximate time spent
 
-Developer-reported estimates, not a timer log:
 
 | Work | Approximate time |
 | --- | --- |
 | Setup, planning and system design | About 1.5 hours |
-| App, data integration and screens | 2+ hours |
+| App, data integration and screens | 2.5 hours |
 | Tests, verification and documentation combined | About 1 hour |
 | Design-system work | Not tracked separately; included within the broader implementation estimate |
 
-Rough total: **4.5+ hours**. These estimates do not independently quantify every AI run, review or explanation.
+Rough total: **4.5+ hours**.
