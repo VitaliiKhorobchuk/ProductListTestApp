@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/image_urls.dart';
 import '../theme/app_tokens.dart';
 
 /// An image slot with the same layout while loading, missing, or unavailable.
@@ -43,13 +44,7 @@ class _ProductImageState extends State<ProductImage> {
       _source = input;
       return;
     }
-    final uri = input == null || input.isEmpty ? null : Uri.tryParse(input);
-    _source =
-        uri != null &&
-            (uri.scheme == 'https' || uri.scheme == 'http') &&
-            uri.host.isNotEmpty
-        ? uri.toString()
-        : null;
+    _source = ImageUrls.remote(input);
     if (_source == null) _warnOnce('missing or unsupported image URL');
   }
 

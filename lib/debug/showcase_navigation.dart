@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../app/catalog_navigation.dart';
-import '../app/theme/theme_cubit.dart';
+import '../app/widgets/theme_toggle_button.dart';
 
 abstract final class ShowcaseNavigation {
   static const path = '/debug/components';
@@ -22,7 +21,6 @@ class ShowcaseAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return AppBar(
       title: Text(title),
       leading: BackButton(
@@ -30,17 +28,7 @@ class ShowcaseAppBar extends StatelessWidget implements PreferredSizeWidget {
           CatalogNavigation.backToCatalog(context);
         },
       ),
-      actions: [
-        IconButton(
-          tooltip: isDark ? 'Switch to light theme' : 'Switch to dark theme',
-          onPressed: () => context.read<ThemeCubit>().toggle(
-            systemBrightness: MediaQuery.platformBrightnessOf(context),
-          ),
-          icon: Icon(
-            isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-          ),
-        ),
-      ],
+      actions: const [ThemeToggleButton()],
     );
   }
 }

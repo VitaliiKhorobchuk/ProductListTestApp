@@ -4,9 +4,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../../../app/catalog_navigation.dart';
 import '../../../../app/adaptive/catalog_layout_scope.dart';
-import '../../../../app/theme/theme_cubit.dart';
+import '../../../../app/catalog_navigation.dart';
+import '../../../../app/widgets/theme_toggle_button.dart';
 import '../../../../debug/debug_showcase_button.dart';
 import '../../../../design_system/components/empty_state.dart';
 import '../../../../design_system/components/error_state.dart';
@@ -16,8 +16,8 @@ import '../../../../design_system/theme/app_tokens.dart';
 import '../../models/catalog_query.dart';
 import '../cubit/catalog_cubit.dart';
 import '../widgets/catalog_category_filters.dart';
-import '../widgets/catalog_product_sliver.dart';
 import '../widgets/catalog_loading_sliver.dart';
+import '../widgets/catalog_product_sliver.dart';
 
 class CatalogScreen extends StatefulWidget {
   const CatalogScreen({super.key});
@@ -175,7 +175,6 @@ class _CatalogScreenState extends State<CatalogScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final tokens = context.tokens;
-    final isDark = theme.brightness == Brightness.dark;
     final layout = CatalogLayoutScope.of(context);
     return Scaffold(
       appBar: AppBar(
@@ -197,15 +196,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                   : Icons.view_list_outlined,
             ),
           ),
-          IconButton(
-            tooltip: isDark ? 'Switch to light theme' : 'Switch to dark theme',
-            onPressed: () => context.read<ThemeCubit>().toggle(
-              systemBrightness: MediaQuery.platformBrightnessOf(context),
-            ),
-            icon: Icon(
-              isDark ? Icons.light_mode_outlined : Icons.dark_mode_outlined,
-            ),
-          ),
+          const ThemeToggleButton(),
           IconButton(
             tooltip: 'Reload products',
             onPressed: _reloadProducts,

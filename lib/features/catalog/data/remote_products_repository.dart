@@ -50,8 +50,8 @@ class RemoteProductsRepository implements ProductsRepository {
   /// Search is a case-insensitive title substring intersected with the selected
   /// category. Keep all matches from each consumed page, even beyond the target:
   /// trimming would lose products after the raw cursor advances. Deduplication
-  /// applies only inside this batch and only after a record matches; future
-  /// Cubit pagination merging must deduplicate across independent batches.
+  /// applies only inside this batch and only after a record matches;
+  /// CatalogCubit merges IDs across independent batches.
   @override
   Future<ProductPage> getProducts({
     required CatalogQuery query,

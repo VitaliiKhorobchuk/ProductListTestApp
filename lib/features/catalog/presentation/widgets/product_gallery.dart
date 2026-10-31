@@ -9,7 +9,8 @@ import '../../../../design_system/theme/app_tokens.dart';
 
 /// Displays presentation-ready image candidates without repeating URL rules.
 ///
-/// ProductPresentation chooses/deduplicates sources; ProductImage owns image
+/// Product canonicalizes image order; ProductPresentation chooses fallbacks.
+/// ProductImage owns image
 /// validation, loading, and failure. An empty list becomes one placeholder slot.
 class ProductGallery extends StatefulWidget {
   const ProductGallery({

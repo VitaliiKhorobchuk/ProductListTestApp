@@ -7,15 +7,14 @@ import '../../design_system/components/product_image.dart';
 import '../../design_system/components/rating_badge.dart';
 import '../../design_system/components/state_message.dart';
 import '../../design_system/theme/app_tokens.dart';
-import '../../fixtures/sample_product_assets.dart';
 import 'category_chip_examples.dart';
 import 'loading_image_preview.dart';
 import 'search_field_examples.dart';
+import 'showcase_assets.dart';
 import 'showcase_models.dart';
 
-const _sampleImage = SampleProductAssets.redLipstick;
-const _missingImage =
-    'assets/images/sample_products/missing_preview_image.webp';
+const _sampleImage = ShowcaseAssets.productImage;
+const _missingImage = ShowcaseAssets.unavailableImage;
 
 abstract final class _PreviewHeight {
   static const image = 160.0;

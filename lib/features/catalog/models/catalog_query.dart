@@ -14,7 +14,7 @@ class CatalogQuery extends Equatable {
 
   String get normalizedText => text.toLowerCase();
 
-  /// Final local match after any broader server/sample-source search.
+  /// Final title/category match after the broader server search.
   bool matches(Product product) =>
       product.title.toLowerCase().contains(normalizedText) &&
       (categorySlug == null || product.category == categorySlug);

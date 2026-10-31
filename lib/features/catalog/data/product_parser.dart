@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 
 import '../../../core/catalog_failure.dart';
 import '../../../core/diagnostic_level.dart';
+import '../../../core/image_urls.dart';
 import '../../../core/product_labels.dart';
 import '../../../core/product_pricing.dart';
 import '../../../core/product_rating.dart';
@@ -50,7 +51,7 @@ class ProductParser {
     final discount = _finiteNumber(record['discountPercentage']);
     final rating = _finiteNumber(record['rating']);
     final stock = SafeInteger.parse(record['stock']);
-    final thumbnail = _imageUrl(record['thumbnail']);
+    final thumbnail = ImageUrls.remote(record['thumbnail']);
     if (thumbnail == null) {
       _diagnose('Product $id has an invalid or missing thumbnail.');
     }
@@ -60,7 +61,7 @@ class ProductParser {
     final rawImages = record['images'];
     if (rawImages is List) {
       for (final rawImage in rawImages) {
-        final image = _imageUrl(rawImage);
+        final image = ImageUrls.remote(rawImage);
         if (image == null) {
           _diagnose('Product $id has an invalid gallery image.');
         } else {
@@ -221,17 +222,6 @@ class ProductParser {
 
   static String _text(Object? value, String fallback) =>
       value is String && value.trim().isNotEmpty ? value.trim() : fallback;
-
-  static String? _imageUrl(Object? value) {
-    if (value is! String || value.trim().isEmpty) return null;
-    final uri = Uri.tryParse(value.trim());
-    return uri != null &&
-            uri.hasAuthority &&
-            uri.host.isNotEmpty &&
-            (uri.scheme == 'http' || uri.scheme == 'https')
-        ? uri.toString()
-        : null;
-  }
 
   static String _humanizeSlug(String slug) {
     final words = slug

@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../design_system/components/product_image.dart';
-import '../../fixtures/sample_product_assets.dart';
+import 'showcase_assets.dart';
 
-const _assetPath = SampleProductAssets.redLipstick;
+const _assetPath = ShowcaseAssets.productImage;
 
 /// Keeps the real ProductImage pending without a server, timer, or API request.
 class LoadingImagePreview extends StatefulWidget {
