@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_tokens.dart';
+import 'product_card_layout.dart';
 import 'product_image.dart';
 import 'rating_badge.dart';
 
-enum ProductCardVariant { standard, compact }
+export 'product_card_layout.dart' show ProductCardVariant;
 
 /// A display-only product summary. Prices are already calculated by the caller.
 class ProductCard extends StatelessWidget {
@@ -67,21 +68,10 @@ class ProductCard extends StatelessWidget {
       rating: rating,
       reviewCount: reviewCount,
     );
-    final layout = LayoutBuilder(
-      builder: (context, constraints) {
-        if (_shouldUseStackedLayout(context, constraints)) {
-          return _buildStackedLayout(
-            tokens: tokens,
-            image: image,
-            content: content,
-          );
-        }
-        return _buildHorizontalLayout(
-          tokens: tokens,
-          image: image,
-          content: content,
-        );
-      },
+    final layout = ProductCardLayout(
+      variant: variant,
+      image: image,
+      content: content,
     );
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -91,57 +81,6 @@ class ProductCard extends StatelessWidget {
               button: true,
               child: InkWell(onTap: onTap, child: layout),
             ),
-    );
-  }
-
-  bool _shouldUseStackedLayout(
-    BuildContext context,
-    BoxConstraints constraints,
-  ) {
-    final isCompact = variant == ProductCardVariant.compact;
-    final hasNarrowWidth = constraints.maxWidth < 300;
-    final hasLargeText = MediaQuery.textScalerOf(context).scale(14) > 21;
-    return isCompact || hasNarrowWidth || hasLargeText;
-  }
-
-  Widget _buildStackedLayout({
-    required AppTokens tokens,
-    required Widget image,
-    required Widget content,
-  }) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: EdgeInsets.fromLTRB(
-            tokens.spaceMd,
-            tokens.spaceMd,
-            tokens.spaceMd,
-            0,
-          ),
-          child: AspectRatio(aspectRatio: 1.5, child: image),
-        ),
-        Padding(padding: EdgeInsets.all(tokens.spaceLg), child: content),
-      ],
-    );
-  }
-
-  Widget _buildHorizontalLayout({
-    required AppTokens tokens,
-    required Widget image,
-    required Widget content,
-  }) {
-    return Padding(
-      padding: EdgeInsets.all(tokens.spaceLg),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(width: 96, height: 112, child: image),
-          SizedBox(width: tokens.spaceLg),
-          Expanded(child: content),
-        ],
-      ),
     );
   }
 

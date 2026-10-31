@@ -178,6 +178,18 @@ After the developer authorized the connected phone, the Android debug APK built 
 
 Data/state and independent architect reviews found no blockers. An actual-app screenshot was saved externally and temporary viewport overrides reset. The external diagnostic source/build/server were removed after inspection; no diagnostics or fault controls ship in the project. No tests, dependencies, README, staging, or commits changed. Final checks remain for pending-load teardown, client ownership instrumentation, Android release/profile and broader native/iOS behavior, and full regression/accessibility/performance coverage. Next are catalog query/pagination/category/detail state and control integration; use cases remain an optional future improvement.
 
+## Initial loading skeleton checkpoint
+
+Fresh catalog loading now renders six static, decorative card placeholders through CatalogLoadingSliver. It follows the selected list/grid variant, current width and text scale. Search/category controls stay mounted and enabled; initial idle/error/empty recovery is unchanged. Pagination continues to retain real products with its separate footer indicator.
+
+ProductCardLayout shares the existing horizontal/stacked image and content geometry between real and loading cards. ProductCardVariant remains available through product_card.dart via re-export. CatalogRowsSliver shares lazy rows, spacing, padding and responsive columns. This avoids a second layout policy without adding fake Product values, dependencies, animation or data-layer work. Bars use flexible widths, theme fills and text-scaled heights; no fixed total card height is imposed.
+
+One live loading label replaces the decorative subtree in semantics. Placeholder descendants and synthetic row indices are excluded; there are no placeholder actions, images, product names, prices or ratings. Static presentation requires no ticker or reduced-motion branch.
+
+Formatting, final full analysis and a production web build passed. UI/design, architect and quick QA source reviews found no blockers. Coordinator browser inspection checked dark standard/light compact skeletons, narrow320x568 at200% text and scrolling through stacked placeholders, editable/selectable filters, and transition to real products. Changing Beauty while held loading then releasing returned one real product; a fresh inspection session released to six fixtures. Standalone debug/release browsing retained real-card layout, and debug theme/grid switching had no warning/error-level logs. QA independently reviewed screenshot artifacts and coordinator evidence; its own browser execution remained unavailable.
+
+The original temporary external release-control host produced framework focus/view assertions around focus/startup/hot restart. A fresh revised host with its inspection control excluded from focus and the standalone debug app did not reproduce them. No production focus workaround was added. Temporary inspection code/server were removed. Pagination separation is source-reviewed in this checkpoint; native screen-reader/input, automated tests, device/performance and full-product acceptance remain final-stage checks. Details and adaptive navigation are next. No dependencies, README, staging or commits changed.
+
 ## Catalog UI integration checkpoint
 
 CatalogScreen now connects the reusable search input and category chips to the existing Cubits. The screen owns/disposes its search controller, preserves raw drafts and pending debounce across category/page/theme changes, and only synchronizes genuine external committed-text changes. Enter and clear use the same commit callback; ProductSearchField remains the only debounce owner. Categories load on their first UI consumer, expose independent loading/idle/empty/error/retry, and keep All products and a missing-selected-category fallback usable.
@@ -190,7 +202,7 @@ UI/design, data/state and architect reviews identified and resolved pending rese
 
 QA now participates in manual acceptance and evidence review. Its browser controls were unavailable in this checkpoint, so the coordinator executed browser checks and QA independently reviewed source, three screenshot artifacts and the reported call/cursor observations; the external QA record distinguishes these roles. Per-character Flutter-web accessibility input automation was unreliable; atomic editing, Enter, clear and result transitions were observed, while exact typing/debounce timing, native IME/soft keyboard and real screen-reader behavior remain unverified.
 
-Required remaining work includes initial skeleton placeholders (current feedback is a spinner/label), product details/navigation, adaptive master-detail behavior and final automated/native/accessibility/performance verification. Broad constants/localization cleanup remains deferred. No dependencies, README, automated tests, staging or commits changed; pre-existing unstaged state-management work was preserved.
+The subsequent skeleton checkpoint completes the initial placeholder requirement. Remaining work includes product details/navigation, adaptive master-detail behavior and final automated/native/accessibility/performance verification. Broad constants/localization cleanup remains deferred. No dependencies, README, automated tests, staging or commits changed; pre-existing unstaged state-management work was preserved.
 
 
 ## Catalog and category state checkpoint

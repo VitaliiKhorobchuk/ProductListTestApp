@@ -15,6 +15,7 @@ import '../../models/catalog_query.dart';
 import '../cubit/catalog_cubit.dart';
 import '../widgets/catalog_category_filters.dart';
 import '../widgets/catalog_product_sliver.dart';
+import '../widgets/catalog_loading_sliver.dart';
 
 class CatalogScreen extends StatefulWidget {
   const CatalogScreen({super.key});
@@ -268,7 +269,12 @@ class _CatalogScreenState extends State<CatalogScreen> {
                             child: _PaginationFooter(state: state),
                           ),
                         ),
-                      ] else
+                      ] else if (state.status == CatalogStatus.loading)
+                        CatalogLoadingSliver(
+                          variant: _variant,
+                          availableWidth: constraints.maxWidth,
+                        )
+                      else
                         SliverToBoxAdapter(
                           child: Semantics(
                             liveRegion: true,
@@ -313,18 +319,8 @@ class _CatalogStatus extends StatelessWidget {
           onAction: onReload,
         );
       case CatalogStatus.loading:
-        return Padding(
-          padding: EdgeInsets.all(context.tokens.spaceXl),
-          child: Column(
-            children: [
-              const CircularProgressIndicator(
-                semanticsLabel: 'Loading products',
-              ),
-              SizedBox(height: context.tokens.spaceLg),
-              const Text('Loading products…'),
-            ],
-          ),
-        );
+        // The parent renders a dedicated skeleton sliver for this state.
+        return const SizedBox.shrink();
       case CatalogStatus.empty:
         final hasSearch = state.query.text.isNotEmpty;
         final hasCategory = state.query.categorySlug != null;
