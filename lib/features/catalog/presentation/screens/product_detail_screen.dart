@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../app/widgets/catalog_detail_app_bar.dart';
 import '../../../../core/catalog_failure.dart';
 import '../../../../design_system/components/empty_state.dart';
 import '../../../../design_system/components/error_state.dart';
@@ -23,17 +24,10 @@ class ProductDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      leading: IconButton(
-        tooltip: 'Back to products',
-        onPressed: onBack,
-        icon: const Icon(Icons.arrow_back),
-      ),
-      title: const Text(
-        'Product details',
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
+    appBar: CatalogDetailAppBar(
+      title: 'Product details',
+      onBack: onBack,
+      onClearSelection: onBrowseProducts,
     ),
     body: SafeArea(
       child: BlocBuilder<ProductDetailCubit, ProductDetailState>(

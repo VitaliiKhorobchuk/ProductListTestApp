@@ -23,6 +23,7 @@ class ProductCard extends StatelessWidget {
     this.rating,
     this.reviewCount,
     this.onTap,
+    this.selected = false,
     this.variant = ProductCardVariant.standard,
   });
 
@@ -39,6 +40,9 @@ class ProductCard extends StatelessWidget {
   final double? rating;
   final int? reviewCount;
   final VoidCallback? onTap;
+
+  /// Indicates the current master-detail selection without changing the surface.
+  final bool selected;
   final ProductCardVariant variant;
 
   @override
@@ -75,14 +79,24 @@ class ProductCard extends StatelessWidget {
       image: image,
       content: content,
     );
+    final interaction = onTap == null
+        ? layout
+        : InkWell(onTap: onTap, child: layout);
     return Card(
       clipBehavior: Clip.antiAlias,
-      child: onTap == null
-          ? layout
-          : Semantics(
-              button: true,
-              child: InkWell(onTap: onTap, child: layout),
-            ),
+      shape: selected
+          ? RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(tokens.radius),
+              side: BorderSide(color: tokens.primary, width: 2),
+            )
+          : null,
+      child: onTap != null || selected
+          ? Semantics(
+              button: onTap != null ? true : null,
+              selected: selected ? true : null,
+              child: interaction,
+            )
+          : interaction,
     );
   }
 }

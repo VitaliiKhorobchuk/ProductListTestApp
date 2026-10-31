@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../app/catalog_navigation.dart';
+import '../../../../app/adaptive/catalog_layout_scope.dart';
 import '../../../../app/theme/theme_cubit.dart';
 import '../../../../debug/debug_showcase_button.dart';
 import '../../../../design_system/components/empty_state.dart';
@@ -129,7 +130,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
           if (position.pixels != offset) position.jumpTo(offset);
         }
       }
-      if (state.status == CatalogStatus.loaded &&
+      if (CatalogLayoutScope.of(context).catalogVisible &&
+          state.status == CatalogStatus.loaded &&
           state.hasMore &&
           !state.isLoadingMore &&
           state.paginationFailure == null &&
@@ -174,6 +176,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
     final theme = Theme.of(context);
     final tokens = context.tokens;
     final isDark = theme.brightness == Brightness.dark;
+    final layout = CatalogLayoutScope.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text(
@@ -261,6 +264,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                       if (state.status == CatalogStatus.loaded) ...[
                         CatalogProductSliver(
                           products: state.products,
+                          selectedProductId: layout.selectedProductId,
                           onProductSelected: (product) =>
                               CatalogNavigation.openProduct(
                                 context,

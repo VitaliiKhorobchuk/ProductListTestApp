@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../design_system/components/error_state.dart';
 import 'catalog_navigation.dart';
+import 'widgets/catalog_detail_app_bar.dart';
 
 /// Friendly recovery for malformed product links and unrecognized routes.
 class NavigationErrorScreen extends StatelessWidget {
@@ -15,11 +16,10 @@ class NavigationErrorScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(
-      title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
-      leading: BackButton(
-        onPressed: () => CatalogNavigation.backToCatalog(context),
-      ),
+    appBar: CatalogDetailAppBar(
+      title: title,
+      onBack: () => CatalogNavigation.backToCatalog(context),
+      onClearSelection: () => CatalogNavigation.browseProducts(context),
     ),
     body: SafeArea(
       child: ErrorState(

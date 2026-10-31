@@ -12,9 +12,11 @@ class CatalogProductSliver extends StatelessWidget {
     required this.variant,
     required this.availableWidth,
     required this.onProductSelected,
+    this.selectedProductId,
   });
 
   final List<Product> products;
+  final int? selectedProductId;
   final ProductCardVariant variant;
   final double availableWidth;
   final ValueChanged<Product> onProductSelected;
@@ -22,6 +24,7 @@ class CatalogProductSliver extends StatelessWidget {
   Widget _card(Product product) => ProductCard(
     key: ValueKey(product.id),
     title: product.title,
+    selected: product.id == selectedProductId,
     brand: product.brand,
     category: product.category,
     imageUrl: product.thumbnail,
