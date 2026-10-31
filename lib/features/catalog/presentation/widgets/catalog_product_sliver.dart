@@ -11,24 +11,26 @@ class CatalogProductSliver extends StatelessWidget {
     required this.products,
     required this.variant,
     required this.availableWidth,
+    required this.onProductSelected,
   });
 
   final List<Product> products;
   final ProductCardVariant variant;
   final double availableWidth;
+  final ValueChanged<Product> onProductSelected;
 
   Widget _card(Product product) => ProductCard(
     key: ValueKey(product.id),
     title: product.title,
     brand: product.brand,
-    category: product.category.replaceAll('-', ' '),
+    category: product.category,
     imageUrl: product.thumbnail,
     price: product.discountedPrice,
     originalPrice: product.price,
     rating: product.rating,
     reviewCount: product.reviewCount,
     variant: variant,
-    // Detail navigation belongs to a later checkpoint.
+    onTap: () => onProductSelected(product),
   );
 
   @override

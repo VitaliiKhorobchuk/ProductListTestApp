@@ -7,7 +7,9 @@ import '../models/catalog_query.dart';
 import '../models/category.dart';
 import '../models/product.dart';
 import '../models/product_page.dart';
+import 'product_id_validation.dart';
 import 'products_repository.dart';
+
 import 'sample_product_data.dart';
 
 enum SampleCatalogScenario { loaded, empty, error }
@@ -111,6 +113,8 @@ class SampleProductsRepository implements ProductsRepository {
 
   @override
   Future<Product> getProduct(int id, {RequestControl? control}) async {
+    control?.throwIfCancelled();
+    validateProductId(id);
     final products = await _readProducts(control);
     for (final product in products) {
       if (product.id == id) return product;

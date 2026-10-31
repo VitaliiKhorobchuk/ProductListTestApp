@@ -1,12 +1,15 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../core/product_labels.dart';
+import '../../../core/product_pricing.dart';
+
 class Product extends Equatable {
   Product({
     required this.id,
     required this.title,
     required this.category,
     this.description = '',
-    this.brand = 'Unknown brand',
+    this.brand = ProductLabels.unknownBrand,
     this.price,
     this.discountPercentage = 0,
     this.rating,
@@ -14,7 +17,10 @@ class Product extends Equatable {
     this.stock,
     this.thumbnail,
     List<String> images = const [],
-  }) : images = List.unmodifiable(images);
+  }) : images = List.unmodifiable({
+         for (final image in images)
+           if (image.trim().isNotEmpty) image.trim(),
+       });
 
   final int id;
   final String title;
@@ -29,18 +35,8 @@ class Product extends Equatable {
   final String? thumbnail;
   final List<String> images;
 
-  double? get discountedPrice {
-    final original = price;
-    if (original == null || !original.isFinite || original < 0) return null;
-    final discount =
-        discountPercentage.isFinite &&
-            discountPercentage >= 0 &&
-            discountPercentage <= 100
-        ? discountPercentage
-        : 0;
-    return original * (1 - discount / 100);
-  }
-
+  double? get discountedPrice =>
+      ProductPricing.discountedPrice(price, discountPercentage);
   @override
   List<Object?> get props => [
     id,

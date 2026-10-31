@@ -8,8 +8,10 @@ import '../models/catalog_query.dart';
 import '../models/category.dart';
 import '../models/product.dart';
 import '../models/product_page.dart';
+import 'product_id_validation.dart';
 import 'products_api.dart';
 import 'products_repository.dart';
+
 import 'raw_product_page.dart';
 
 /// Converts raw API pages into complete, filtered catalog batches.
@@ -116,8 +118,9 @@ class RemoteProductsRepository implements ProductsRepository {
   );
 
   @override
-  Future<Product> getProduct(int id, {RequestControl? control}) {
-    _requireSafeInteger(id, 'id', minimum: 1);
+  Future<Product> getProduct(int id, {RequestControl? control}) async {
+    control?.throwIfCancelled();
+    validateProductId(id);
     return _run(control, (operation) async {
       final product = await _api.getProduct(id, cancelToken: operation.token);
       operation.check();

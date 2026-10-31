@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 
 import '../app/theme/theme_cubit.dart';
+import '../app/catalog_navigation.dart';
 
 abstract final class ShowcaseNavigation {
   static const path = '/debug/components';
@@ -25,11 +25,7 @@ class ShowcaseAppBar extends StatelessWidget implements PreferredSizeWidget {
       title: Text(title),
       leading: BackButton(
         onPressed: () {
-          if (context.canPop()) {
-            context.pop();
-          } else {
-            context.goNamed('catalog');
-          }
+          CatalogNavigation.backToCatalog(context);
         },
       ),
       actions: [

@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/product_labels.dart';
+import '../../../core/product_pricing.dart';
 import '../theme/app_tokens.dart';
 import 'product_card_layout.dart';
 import 'product_image.dart';
+import 'product_price.dart';
 import 'rating_badge.dart';
 
 export 'product_card_layout.dart' show ProductCardVariant;
@@ -41,16 +44,15 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = context.tokens;
-    final displayTitle = title.trim().isEmpty
-        ? 'Untitled product'
-        : title.trim();
+    final displayTitle = ProductLabels.title(title);
     final image = ClipRRect(
       borderRadius: BorderRadius.circular(tokens.smallRadius),
       child: Stack(
         fit: StackFit.expand,
         children: [
           ProductImage(imageUrl: imageUrl, semanticLabel: displayTitle),
-          if (_discountPercent case final discount?)
+          if (ProductPricing.discountPercent(price, originalPrice)
+              case final discount?)
             PositionedDirectional(
               top: tokens.spaceXs,
               start: tokens.spaceXs,
@@ -64,7 +66,7 @@ class ProductCard extends StatelessWidget {
       category: category,
       brand: brand,
       price: price,
-      originalPrice: _hasDiscount ? originalPrice : null,
+      originalPrice: originalPrice,
       rating: rating,
       reviewCount: reviewCount,
     );
@@ -82,20 +84,6 @@ class ProductCard extends StatelessWidget {
               child: InkWell(onTap: onTap, child: layout),
             ),
     );
-  }
-
-  static bool _validPrice(double? value) =>
-      value != null && value.isFinite && value >= 0;
-
-  bool get _hasDiscount =>
-      _validPrice(price) &&
-      _validPrice(originalPrice) &&
-      originalPrice! > price!;
-
-  int? get _discountPercent {
-    if (!_hasDiscount) return null;
-    final percent = ((1 - price! / originalPrice!) * 100).round();
-    return percent > 0 ? percent : null;
   }
 }
 
@@ -122,12 +110,8 @@ class _ProductContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = context.tokens;
     final textTheme = Theme.of(context).textTheme;
-    final displayCategory = category.trim().isEmpty
-        ? 'Uncategorized'
-        : category.trim();
-    final displayBrand = brand?.trim();
-    final currentPrice = price;
-    final validPrice = ProductCard._validPrice(currentPrice);
+    final displayCategory = ProductLabels.category(category);
+    final displayBrand = ProductLabels.optionalBrand(brand);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,7 +129,7 @@ class _ProductContent extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           style: textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
         ),
-        if (displayBrand != null && displayBrand.isNotEmpty) ...[
+        if (displayBrand != null) ...[
           SizedBox(height: tokens.spaceXs),
           Text(
             displayBrand,
@@ -155,42 +139,7 @@ class _ProductContent extends StatelessWidget {
           ),
         ],
         SizedBox(height: tokens.spaceSm),
-        Wrap(
-          spacing: tokens.spaceSm,
-          runSpacing: tokens.spaceXs,
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            Semantics(
-              label: validPrice
-                  ? 'Price ${currentPrice!.toStringAsFixed(2)} US dollars'
-                  : 'Price unavailable',
-              child: ExcludeSemantics(
-                child: Text(
-                  validPrice
-                      ? '\$${currentPrice!.toStringAsFixed(2)} USD'
-                      : 'Price unavailable',
-                  style: textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
-            if (originalPrice case final original?)
-              Semantics(
-                label:
-                    'Original price ${original.toStringAsFixed(2)} US dollars',
-                child: ExcludeSemantics(
-                  child: Text(
-                    '\$${original.toStringAsFixed(2)}',
-                    style: textTheme.bodySmall?.copyWith(
-                      color: tokens.onSurfaceDim,
-                      decoration: TextDecoration.lineThrough,
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
+        ProductPrice(price: price, originalPrice: originalPrice),
         SizedBox(height: tokens.spaceSm),
         RatingBadge(rating: rating, reviewCount: reviewCount),
       ],

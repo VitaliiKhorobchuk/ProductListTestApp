@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../app/catalog_navigation.dart';
 import '../../../../app/theme/theme_cubit.dart';
 import '../../../../debug/debug_showcase_button.dart';
 import '../../../../design_system/components/empty_state.dart';
@@ -260,6 +261,11 @@ class _CatalogScreenState extends State<CatalogScreen> {
                       if (state.status == CatalogStatus.loaded) ...[
                         CatalogProductSliver(
                           products: state.products,
+                          onProductSelected: (product) =>
+                              CatalogNavigation.openProduct(
+                                context,
+                                product.id,
+                              ),
                           variant: _variant,
                           availableWidth: constraints.maxWidth,
                         ),

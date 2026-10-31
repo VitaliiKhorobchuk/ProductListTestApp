@@ -1,6 +1,8 @@
 import 'dart:developer' as developer;
 
 import '../../../core/catalog_failure.dart';
+import '../../../core/product_labels.dart';
+import '../../../core/product_pricing.dart';
 import '../models/category.dart';
 import '../models/product.dart';
 import 'raw_product_page.dart';
@@ -35,7 +37,7 @@ class ProductParser {
     }
 
     final originalPrice = _finiteNumber(record['price']);
-    final price = originalPrice != null && originalPrice >= 0
+    final price = ProductPricing.isValidPrice(originalPrice)
         ? originalPrice
         : null;
     if (price == null) {
@@ -51,14 +53,14 @@ class ProductParser {
     }
 
     final images = <String>[];
-    final seenImages = <String>{};
+
     final rawImages = record['images'];
     if (rawImages is List) {
       for (final rawImage in rawImages) {
         final image = _imageUrl(rawImage);
         if (image == null) {
           _diagnose('Product $id has an invalid gallery image.');
-        } else if (seenImages.add(image)) {
+        } else {
           images.add(image);
         }
       }
@@ -69,13 +71,16 @@ class ProductParser {
     final reviews = record['reviews'];
     return Product(
       id: id,
-      title: _text(record['title'], 'Untitled product'),
-      category: _text(record['category'], 'Unknown category'),
-      description: _text(record['description'], 'No description available.'),
-      brand: _text(record['brand'], 'Unknown brand'),
+      title: _text(record['title'], ProductLabels.untitledProduct),
+      category: _text(record['category'], ProductLabels.unknownCategory),
+      description: _text(
+        record['description'],
+        ProductLabels.missingDescription,
+      ),
+      brand: _text(record['brand'], ProductLabels.unknownBrand),
       price: price,
-      discountPercentage: discount != null && discount >= 0 && discount <= 100
-          ? discount
+      discountPercentage: ProductPricing.isValidDiscount(discount)
+          ? discount!
           : 0,
       rating: rating != null && rating >= 0 && rating <= 5 ? rating : null,
       reviewCount: reviews is List ? reviews.length : null,
