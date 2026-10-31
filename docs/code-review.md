@@ -32,10 +32,11 @@ The reachability/duplicate-block inspection is a source audit, not a proof about
 - Rating precision: a raw rating such as 3.999 can display 4.0 while using the raw amber threshold. Choose and test a consistent display/color policy later.
 - Wide-desktop proportions: the existing fixed 380px list and centered 720px detail content remain the previously deferred visual improvement.
 - Test scope: ten assessment-baseline tests do not exhaustively cover category/detail Cubits, request races/deadlines, API/repository failures or adaptive lifetimes. Expand only where justified.
-- Final native/accessibility/performance/platform and README/history verification remains planned; this review does not certify those areas.
+- Final build/manual/profile checks and README/history handoff are recorded in verification.md. Frame-budget exceedances and unverified accessibility/platform cases remain explicit limits.
 
 ## Validation
 
 All ten existing tests pass, static analysis reports no issues, and formatting passes. The final release web build passes with the Cupertino font restored. Scoped browser checks cover live remote catalog/detail, the shared theme control and the relocated showcase image; observations are recorded in the external AI overview.
 
 No new tests or dependencies were added. No staging, commits or pushes were performed. README remains for final delivery.
+Final handoff: localization and rating precision were explicitly deferred by the developer to README future improvements. The documentation/verification checkpoint changes no production code.

@@ -19,7 +19,7 @@ The default path is CatalogScreen -> CatalogCubit -> ProductsRepository -> Remot
 
 ## Test and verification scope
 
-Ten tests cover the assessment baseline: four CatalogCubit transition tests, four ProductParser validation/parsing tests and widget tests for RatingBadge and CategoryChip. They use the existing flutter_test dependency, a local stub and real themes without HTTP. This is not exhaustive async/repository/routing/responsive coverage. English localization, remaining platform/accessibility/performance checks and final documentation remain pending.
+Ten tests cover the assessment baseline: four CatalogCubit transition tests, four ProductParser validation/parsing tests and widget tests for RatingBadge and CategoryChip. They use the existing flutter_test dependency, a local stub and real themes without HTTP. This is not exhaustive async/repository/routing/responsive coverage. Final build/manual/profile results and limits are recorded in verification.md and README.md. Localization and rating precision are deferred; frame-budget exceedances and unverified platform/accessibility cases remain follow-ups.
 
 ## 1. Scope and constraints
 

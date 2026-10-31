@@ -126,7 +126,7 @@ Add dependencies when implementation begins using them. The first card increment
 7. **Search, filters, and pagination (implemented):** input debounce/Enter/clear, title/category intersection, raw cursor handling, stale-response guards, cross-batch deduplication, near-bottom/post-layout/resize refill and explicit footer retry are wired. Query changes clear both layout scroll offsets; append/theme/showcase preserve position. Manual edge cases and role-based reviews passed; exact native input/screen-reader and automated regression coverage remain final-stage verification.
 8. **Phone details and navigation (implemented):** route-owned ProductDetailCubit drives loading/recovery/error/notFound and complete product details/gallery. Cards open nested /products/:id; decimal URL parsing delegates numeric validity to the repository. Shared price/text/image policies avoid duplicate rules. Hash direct links/reload, Back/Browse, gallery controls and warm catalog retention have manual evidence. Tablet master-detail is implemented in step9; final native/automated/accessibility checks remain next.
 9. **Tablet layout (implemented):** persistent catalog/detail shell, shared safe-width policy, route-derived selection prompt/highlight, adaptive Back/Clear chrome, independent scrolling and retained state across resizing.
-10. **Final verification and handoff (required test baseline implemented):** ten focused tests cover Cubit transitions, data validation/model parsing and two design-system components. Remaining work includes localization, target-platform/accessibility/layout/performance verification and final documentation. Deeper repository, asynchronous-safety and routing regression tests remain recommended follow-ups beyond the PDF baseline.
+10. **Final verification and handoff (required test baseline implemented):** ten focused tests cover Cubit transitions, data validation/model parsing and two design-system components. Final verification/handoff are recorded in docs/verification.md and README.md. Localization and rating precision are deferred; performance/platform/accessibility limits remain explicit follow-ups. Deeper repository, asynchronous-safety and routing regression tests remain recommended follow-ups beyond the PDF baseline.
 
 The app now uses remote data with all required components/screens and the compact ten-test baseline. The temporary sample catalog/repository is retired. One debug showcase image remains beside its preview code; tests use small local doubles. Current technical contracts live in system-design.md; chronology remains in the external AI overview and Git history.
 
@@ -186,7 +186,7 @@ Files live under test/features/catalog/ and test/design_system/components/, with
 All ten tests and full analysis passed; test sources are formatted. This is the selected minimum-scope baseline, not exhaustive coverage of all Cubits, API/repository failures, cancellation/deadlines, search races, routes, responsive layout or every component state. Those remain possible regression follow-ups alongside the remaining manual/platform verification. No production code, dependency files, README, staging or commits changed for this checkpoint.
 
 
-### Localization (next checkpoint)
+### Localization (deferred future improvement)
 
 - Move app-owned visible text, tooltips, fallback/error messages, accessibility labels, plural forms, and number/currency presentation into localization resources using Flutter's localization workflow. Establish English resources first; additional translations require an explicit language decision.
 - Keep models/repositories/Cubits independent of Flutter localization. Map typed failure kinds to localized messages in presentation; do not expose diagnostic messages directly as UI text.
@@ -216,3 +216,9 @@ Verify rapid query changes, Enter/clear behavior, combined filtering across init
 Record measured results and outstanding checks honestly. iOS build/device verification requires a Mac with Xcode; generated platform files alone do not demonstrate a working iOS build.
 
 At final handoff, write the README sections for setup, architecture, design-system rationale, limitations, spec issues/assumptions, AI usage, and approximate time spent. Add the externally maintained development overview under docs/ at that stage.
+
+### Final verification and handoff
+
+The developer deferred rating rounding/color consistency and localization to README future improvements. Formatting, analysis, ten tests, release web, Android profile and release APK builds passed. Browser/device checks and measured frame-budget exceedances are recorded in docs/verification.md; zero-dropped-frame performance, native rotation, full screen-reader and iOS signoff remain unverified.
+
+README documents setup, architecture, design-system decisions, verification/limits, assumptions, AI assistance and approximate developer-reported time. The maintained AI overview is included in docs/ai-development-overview.md for handoff. Application code/dependencies were unchanged; nothing was staged or committed.
